@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}消息通知 - 校园交流平台{% endblock %}
+
+{% block content %}
+<div class="main-layout">
+    <div class="main-content" style="max-width:700px;margin:0 auto;">
+        <div class="notif-title-bar">
+            <h2>🔔 消息通知</h2>
+            {% if notifications %}
+            <a href="{{ url_for('notification_read_all') }}" class="btn btn-sm btn-outline">全部已读</a>
+            {% endif %}
+        </div>
+
+        {% if notifications %}
+            {% for n in notifications %}
+            <a href="{{ url_for('notification_read', notif_id=n.id) }}">
+            <div class="notif-item {{ 'notif-unread' if not n.is_read else '' }}">
+                <div class="notif-body">
+                    <img class="notif-avatar" src="{{ n.from_user.avatar_url if n.from_user else url_for('static', filename='img/default_avatar.svg') }}">
+                    <div class="notif-text">
+                        <p class="notif-content">{{ n.content }}</p>
+                        <span class="notif-time">{{ n.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    </div>
+                    {% if not n.is_read %}
+                    <span class="notif-dot"></span>
+                    {% endif %}
+                </div>
+            </div>
+            </a>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state" style="background:#fff;border-radius:8px;">暂无通知</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

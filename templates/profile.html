@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.nickname }} 的个人主页 - 校园交流平台{% endblock %}
+
+{% block content %}
+<div class="main-layout">
+    <div class="main-content" style="max-width:800px;margin:0 auto;">
+
+        <div class="profile-header">
+            <form method="POST" enctype="multipart/form-data" id="avatar-form">
+                <div class="profile-avatar-wrapper" onclick="document.getElementById('avatar-input').click()">
+                    <img class="profile-avatar" src="{{ user.avatar_url }}" alt="avatar">
+                    <span class="avatar-change-hint">更换头像</span>
+                </div>
+                <input type="file" id="avatar-input" name="avatar" accept="image/*" style="display:none;" onchange="document.getElementById('avatar-form').submit()">
+            </form>
+            <div class="profile-info">
+                <div class="nickname-display">
+                    <span id="nickname-text">{{ user.nickname }}</span>
+                    <span class="nickname-edit-icon" onclick="startEditNickname()" title="修改昵称">✏️</span>
+                </div>
+                <form method="POST" id="nickname-form" class="nickname-edit-form" style="display:none;">
+                    <input type="text" name="nickname" id="nickname-input" value="{{ user.nickname }}" required>
+                    <button type="submit" class="nickname-save-btn">保存</button>
+                    <button type="button" class="nickname-cancel-btn" onclick="cancelEditNickname()">取消</button>
+                </form>
+                <div class="profile-stats">
+                    <span>获赞 <strong>{{ user.like_count }}</strong></span>
+                    <span>收藏 <strong>{{ user.favorite_count }}</strong></span>
+                    <span>发帖 <strong>{{ my_posts|length }}</strong></span>
+                    <span>关注 <strong>{{ user.following_count }}</strong></span>
+                    <span>被关注 <strong>{{ user.follower_count }}</strong></span>
+                </div>
+            </div>
+        </div>
+
+        {% set current_tab = request.args.get('tab', 'posts') %}
+        {% set cat_filter = request.args.get('cat', 'all') %}
+
+        <div class="profile-section">
+            <div class="tabs">
+                <a href="?tab=posts" class="{{ 'active' if current_tab == 'posts' else '' }}">我的帖子</a>
+                <a href="?tab=favorites" class="{{ 'active' if current_tab == 'favorites' else '' }}">我的收藏</a>
+                <a href="?tab=following" class="{{ 'active' if current_tab == 'following' else '' }}">我的关注</a>
+                <a href="?tab=followers" class="{{ 'active' if current_tab == 'followers' else '' }}">关注我的</a>
+                <a href="?tab=short" class="{{ 'active' if current_tab == 'short' else '' }}">短时联系人</a>
+                <a href="?tab=friends" class="{{ 'active' if current_tab == 'friends' else '' }}">长时好友</a>
+                <a href="?tab=privacy" class="{{ 'active' if current_tab == 'privacy' else '' }}">隐私设置</a>
+            </div>
+
+            {% if pending_requests and current_tab == 'friends' %}
+            <div class="pending-section">
+                <h3>待处理的好友请求</h3>
+                {% for req in pending_requests %}
+                <div class="friend-item">
+                    <div class="friend-info">
+                        <img class="friend-avatar" src="{{ req.user.avatar_url }}" alt="avatar">
+                        <span class="friend-name">{{ req.user.nickname }}</span>
+                    </div>
+                    <div style="display:flex;gap:6px;">
+                        <a href="{{ url_for('handle_friend', req_id=req.id, action='accept') }}" class="btn btn-sm btn-reply-submit">同意</a>
+                        <a href="{{ url_for('handle_friend', req_id=req.id, action='reject') }}" class="btn btn-sm btn-outline">拒绝</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if my_sent_requests and current_tab == 'friends' %}
+            <div class="pending-section">
+                <h3>等待对方通过的请求</h3>
+                {% for req in my_sent_requests %}
+                <div class="friend-item">
+                    <div class="friend-info">
+                        <img class="friend-avatar" src="{{ req.friend.avatar_url }}" alt="avatar">
+                        <span class="friend-name">{{ req.friend.nickname }}</span>
+                    </div>
+                    <span style="color:#999;font-size:12px;">⏳ 等待中</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if current_tab == 'posts' %}
+                <div class="tabs sub-tabs">
+                    <a href="?tab=posts&cat=all" class="{{ 'active' if cat_filter == 'all' else '' }}">全部</a>
+                    <a href="?tab=posts&cat=daily" class="{{ 'active' if cat_filter == 'daily' else '' }}">日常生活</a>
+                    <a href="?tab=posts&cat=news" class="{{ 'active' if cat_filter == 'news' else '' }}">时事新闻</a>
+                    <a href="?tab=posts&cat=academic" class="{{ 'active' if cat_filter == 'academic' else '' }}">学术科研</a>
+                    <a href="?tab=posts&cat=trade" class="{{ 'active' if cat_filter == 'trade' else '' }}">二手交易</a>
+                </div>
+                {% set filtered_posts = my_posts if cat_filter == 'all' else my_posts | selectattr('category', 'equalto', cat_filter) | list %}
+                {% if filtered_posts %}
+                    <div>
+                        {% for mp in filtered_posts %}
+                        <a href="{{ url_for('post_detail', post_id=mp.id) }}">
+                            <div class="post-card">
+                                <div class="post-card-header">
+                                    <span class="post-card-author">{{ mp.author.nickname }}</span>
+                                    <span class="post-card-time">{{ mp.created_at.strftime('%Y-%m-%d') }}</span>
+                                </div>
+                                <div class="post-card-title">{{ mp.title }}</div>
+                                <div class="post-card-footer">
+                                    <span>❤️ {{ mp.like_count }}</span>
+                                    <span>💬 {{ mp.comment_count }}</span>
+                                    <span>👁 {{ mp.views }}</span>
+                                    <span class="post-card-category">
+                                        {% if mp.category == 'daily' %}日常生活
+                                        {% elif mp.category == 'news' %}时事新闻
+                                        {% elif mp.category == 'academic' %}学术科研
+                                        {% elif mp.category == 'trade' %}二手交易
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">还没有发布过帖子</div>
+                {% endif %}
+
+            {% elif current_tab == 'favorites' %}
+                <div class="tabs sub-tabs">
+                    <a href="?tab=favorites&cat=all" class="{{ 'active' if cat_filter == 'all' else '' }}">全部</a>
+                    <a href="?tab=favorites&cat=daily" class="{{ 'active' if cat_filter == 'daily' else '' }}">日常生活</a>
+                    <a href="?tab=favorites&cat=news" class="{{ 'active' if cat_filter == 'news' else '' }}">时事新闻</a>
+                    <a href="?tab=favorites&cat=academic" class="{{ 'active' if cat_filter == 'academic' else '' }}">学术科研</a>
+                    <a href="?tab=favorites&cat=trade" class="{{ 'active' if cat_filter == 'trade' else '' }}">二手交易</a>
+                </div>
+                {% set filtered_favs = favorited_posts if cat_filter == 'all' else favorited_posts | selectattr('category', 'equalto', cat_filter) | list %}
+                {% if filtered_favs %}
+                    <div>
+                        {% for fp in filtered_favs %}
+                        <a href="{{ url_for('post_detail', post_id=fp.id) }}">
+                            <div class="post-card">
+                                <div class="post-card-header">
+                                    <span class="post-card-author">{{ fp.author.nickname }}</span>
+                                    <span class="post-card-time">{{ fp.created_at.strftime('%Y-%m-%d') }}</span>
+                                </div>
+                                <div class="post-card-title">{{ fp.title }}</div>
+                                <div class="post-card-footer">
+                                    <span>❤️ {{ fp.like_count }}</span>
+                                    <span>💬 {{ fp.comment_count }}</span>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">还没有收藏任何帖子</div>
+                {% endif %}
+
+            {% elif current_tab == 'following' %}
+                {% if following_users %}
+                    <div class="friend-list">
+                        {% for fu in following_users %}
+                        <div class="friend-item">
+                            <div class="friend-info">
+                                <img class="friend-avatar" src="{{ fu.avatar_url }}" alt="avatar">
+                                <span class="friend-name">{{ fu.nickname }}</span>
+                            </div>
+                            <a href="{{ url_for('user_profile', user_id=fu.id) }}" class="btn btn-sm btn-outline">查看主页</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">你还没有关注任何人</div>
+                {% endif %}
+
+            {% elif current_tab == 'followers' %}
+                {% if follower_users %}
+                    <div class="friend-list">
+                        {% for fu in follower_users %}
+                        <div class="friend-item">
+                            <div class="friend-info">
+                                <img class="friend-avatar" src="{{ fu.avatar_url }}" alt="avatar">
+                                <span class="friend-name">{{ fu.nickname }}</span>
+                            </div>
+                            <a href="{{ url_for('user_profile', user_id=fu.id) }}" class="btn btn-sm btn-outline">查看主页</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">还没有粉丝</div>
+                {% endif %}
+
+            {% elif current_tab == 'short' %}
+                {% if short_contacts %}
+                    <div class="friend-list">
+                        {% for c in short_contacts %}
+                        <div class="friend-item">
+                            <div class="friend-info">
+                                <img class="friend-avatar" src="{{ c.avatar_url }}" alt="avatar">
+                                <span class="friend-name">{{ c.nickname }}</span>
+                            </div>
+                            <a href="{{ url_for('chat', peer_id=c.id) }}" class="btn btn-sm btn-outline">发消息</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">暂无短时联系人</div>
+                {% endif %}
+
+            {% elif current_tab == 'friends' %}
+                {% if friend_users %}
+                    <div class="friend-list">
+                        {% for f in friend_users %}
+                        <div class="friend-item">
+                            <div class="friend-info">
+                                <img class="friend-avatar" src="{{ f.avatar_url }}" alt="avatar">
+                                <span class="friend-name">{{ f.nickname }}</span>
+                            </div>
+                            <a href="{{ url_for('chat', peer_id=f.id) }}" class="btn btn-sm btn-outline">发消息</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">暂无长时好友</div>
+                {% endif %}
+
+            {% elif current_tab == 'privacy' %}
+                <div class="privacy-section">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                        <h3 style="margin:0;">🔒 隐私设置</h3>
+                        <div style="display:flex;gap:8px;">
+                            <button type="button" class="btn btn-sm btn-outline" onclick="toggleAllPrivacy()">全部开启/关闭</button>
+                            <button type="submit" form="privacy-form" class="btn btn-sm btn-reply-submit">保存设置</button>
+                        </div>
+                    </div>
+                    <form method="POST" id="privacy-form">
+                        <div class="privacy-item">
+                            <span>允许他人查看我的帖子</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="privacy-check" name="show_posts" value="1" {{ 'checked' if privacy.show_posts else '' }}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="privacy-item">
+                            <span>允许他人查看我的收藏</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="privacy-check" name="show_favorites" value="1" {{ 'checked' if privacy.show_favorites else '' }}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="privacy-item">
+                            <span>允许他人查看我的关注</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="privacy-check" name="show_following" value="1" {{ 'checked' if privacy.show_following else '' }}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="privacy-item">
+                            <span>允许他人与我短时聊天</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="privacy-check" name="allow_short_chat" value="1" {{ 'checked' if privacy.allow_short_chat else '' }}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="privacy-item">
+                            <span>允许他人添加我为好友</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="privacy-check" name="allow_friend_request" value="1" {{ 'checked' if privacy.allow_friend_request else '' }}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<script>
+function startEditNickname() {
+    document.querySelector('.nickname-display').style.display = 'none';
+    document.getElementById('nickname-form').style.display = '';
+    document.getElementById('nickname-input').focus();
+    document.getElementById('nickname-input').select();
+}
+function cancelEditNickname() {
+    document.querySelector('.nickname-display').style.display = '';
+    document.getElementById('nickname-form').style.display = 'none';
+    document.getElementById('nickname-input').value = document.getElementById('nickname-text').textContent;
+}
+function toggleAllPrivacy() {
+    var checks = document.querySelectorAll('.privacy-check');
+    var allOn = true;
+    checks.forEach(function(c) { if (!c.checked) allOn = false; });
+    checks.forEach(function(c) { c.checked = !allOn; });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}发布新帖 - 校园交流平台{% endblock %}
+
+{% block content %}
+<div class="main-layout" style="justify-content:center;">
+    <div class="create-post-page">
+
+        <div class="editor-wrapper">
+            <div class="editor-header">
+                <h2>✏️ 发布新帖</h2>
+            </div>
+
+            <form method="POST" action="{{ url_for('create_post') }}" id="post-form">
+                <div class="form-inline">
+                    <div class="form-group" style="flex:1;">
+                        <label for="title">标题</label>
+                        <input type="text" id="title" name="title" placeholder="请输入标题" required>
+                    </div>
+                    <div class="form-group" style="width:180px;flex-shrink:0;">
+                        <label for="category">板块</label>
+                        <select id="category" name="category" required>
+                            <option value="">选择板块</option>
+                            <option value="daily">日常生活</option>
+                            <option value="news">时事新闻</option>
+                            <option value="academic">学术科研</option>
+                            <option value="trade">二手交易</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group editor-container">
+                    <label>内容（支持 Markdown，可拖拽/粘贴图片）</label>
+                    <textarea id="content" name="content"></textarea>
+                </div>
+
+                <div class="editor-actions">
+                    <a href="{{ url_for('forum') }}" class="btn btn-outline">取消</a>
+                    <button type="submit" class="btn btn-primary" style="width:auto;">发布帖子</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+<style>
+.editor-container{opacity:0;transition:opacity .2s}.editor-ready{opacity:1}
+</style>
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+var simplemde = new SimpleMDE({
+    element: document.getElementById("content"),
+    spellChecker: false,
+    placeholder: "分享你的想法...",
+    toolbar: ["bold","italic","heading","|","quote","unordered-list","ordered-list","|","link","image","|","preview","side-by-side","fullscreen","|","guide"],
+    uploadImage: true,
+    imageUploadFunction: function(file, onSuccess, onError) {
+        var formData = new FormData();
+        formData.append("image", file);
+        fetch("{{ url_for('upload_image') }}", {method:"POST",body:formData})
+        .then(function(r){return r.json()})
+        .then(function(d){if(d.url)onSuccess(d.url);else onError(d.error||"")})
+        .catch(function(){onError("")});
+    }
+});
+document.querySelector('.editor-container').classList.add('editor-ready');
+document.getElementById('post-form').addEventListener('submit', function(e) {
+    var c = document.getElementById('category').value;
+    var t = document.getElementById('title').value.trim();
+    var ct = simplemde.value().trim();
+    if(!c){e.preventDefault();alert('请选择板块');return}
+    if(!t){e.preventDefault();alert('请输入标题');return}
+    if(!ct){e.preventDefault();alert('请输入内容');return}
+});
+</script>
+{% endblock %}

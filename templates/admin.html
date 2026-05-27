@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}管理后台 - 校园交流平台{% endblock %}
+
+{% block content %}
+<div class="main-layout">
+    <div class="main-content" style="max-width:900px;margin:0 auto;">
+
+        <div class="notif-title-bar">
+            <h2>⚙️ 管理后台</h2>
+        </div>
+
+        <div class="admin-stats">
+            <div class="admin-stat-card">
+                <span class="admin-stat-num">{{ stats.total_users }}</span>
+                <span class="admin-stat-label">用户总数</span>
+            </div>
+            <div class="admin-stat-card">
+                <span class="admin-stat-num">{{ stats.total_posts }}</span>
+                <span class="admin-stat-label">帖子总数</span>
+            </div>
+            <div class="admin-stat-card">
+                <span class="admin-stat-num">{{ stats.total_comments }}</span>
+                <span class="admin-stat-label">评论总数</span>
+            </div>
+            <div class="admin-stat-card">
+                <span class="admin-stat-num" style="color:#e74c3c;">{{ stats.banned_users }}</span>
+                <span class="admin-stat-label">已封禁</span>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h3 style="padding:0 0 12px;">👥 用户列表</h3>
+
+            {% for u in users %}
+            <div class="friend-item">
+                <div class="friend-info">
+                    <img class="friend-avatar" src="{{ u.avatar_url }}" alt="avatar">
+                    <span class="friend-name">{{ u.nickname }}</span>
+                    <span style="color:#999;font-size:12px;">@{{ u.username }}</span>
+                    {% if u.is_admin %}
+                    <span class="admin-badge">管理员</span>
+                    {% endif %}
+                    {% if u.is_banned %}
+                    <span class="banned-badge">已封禁</span>
+                    {% endif %}
+                </div>
+                <span style="color:#bbb;font-size:12px;">{{ u.created_at.strftime('%Y-%m-%d') }} 注册</span>
+                <div style="display:flex;gap:6px;">
+                    <a href="{{ url_for('user_profile', user_id=u.id) }}" class="btn btn-sm btn-outline">查看</a>
+                    {% if not u.is_admin and u.id != session['user_id'] %}
+                        {% if u.is_banned %}
+                        <a href="{{ url_for('admin_unban', user_id=u.id) }}" class="btn btn-sm btn-reply-submit" onclick="return confirm('确定要解封用户 {{ u.nickname }} 吗？')">解封</a>
+                        {% else %}
+                        <a href="{{ url_for('admin_ban', user_id=u.id) }}" class="btn btn-sm" style="background:#e74c3c;color:#fff;border:none;" onclick="return confirm('确定要封禁用户 {{ u.nickname }} 吗？')">封禁</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
