@@ -1,4 +1,5 @@
 import re
+import os
 from datetime import datetime
 from flask import url_for
 import markdown as md
@@ -25,6 +26,8 @@ class User(db.Model):
         if self.avatar and self.avatar.startswith('http'):
             return self.avatar
         if self.avatar and self.avatar != 'default.png':
+            if os.environ.get('DATABASE_URL'):
+                return url_for('static', filename='img/default_avatar.svg')
             return url_for('static', filename=f'uploads/{self.avatar}')
         return url_for('static', filename='img/default_avatar.svg')
 
