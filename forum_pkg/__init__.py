@@ -1,4 +1,6 @@
 import os
+import cloudinary
+import cloudinary.uploader
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect, text
@@ -7,6 +9,19 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
 db = SQLAlchemy()
+
+cloudinary.config(
+    cloudinary_url=os.environ.get('CLOUDINARY_URL', '')
+)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def upload_to_cloudinary(file):
+    result = cloudinary.uploader.upload(file)
+    return result['secure_url']
 
 def create_app():
     package_dir = os.path.abspath(os.path.dirname(__file__))
@@ -53,8 +68,3 @@ def create_app():
         db.session.commit()
 
     return app
-
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

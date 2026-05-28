@@ -22,6 +22,8 @@ class User(db.Model):
 
     @property
     def avatar_url(self):
+        if self.avatar and self.avatar.startswith('http'):
+            return self.avatar
         if self.avatar and self.avatar != 'default.png':
             return url_for('static', filename=f'uploads/{self.avatar}')
         return url_for('static', filename='img/default_avatar.svg')

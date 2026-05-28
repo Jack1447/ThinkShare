@@ -1,10 +1,8 @@
-import os
-import uuid
 from datetime import datetime, date, timedelta
 from flask import render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import markdown as md
-from forum_pkg import db, allowed_file
+from forum_pkg import db, allowed_file, upload_to_cloudinary
 from forum_pkg.models import (
     User, Post, Comment, Like, Favorite, Message,
     Friend, PrivacySetting, Follow, Notification,
@@ -44,18 +42,16 @@ def register_routes(app):
                 flash('该用户名已被注册', 'error')
                 return render_template('register.html')
 
-            avatar_filename = 'default.png'
+            avatar_url = ''
             if 'avatar' in request.files:
                 file = request.files['avatar']
                 if file and file.filename and allowed_file(file.filename):
-                    ext = file.filename.rsplit('.', 1)[1].lower()
-                    avatar_filename = f"avatar_{uuid.uuid4().hex[:8]}.{ext}"
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], avatar_filename))
+                    avatar_url = upload_to_cloudinary(file)
 
             new_user = User(
                 username=username,
                 nickname=nickname,
-                avatar=avatar_filename,
+                avatar=avatar_url,
                 password_hash=generate_password_hash(password)
             )
             db.session.add(new_user)
@@ -107,11 +103,7 @@ def register_routes(app):
         file = request.files['image']
         if file.filename == '' or not allowed_file(file.filename):
             return {'error': '不支持的图片格式'}, 400
-        ext = file.filename.rsplit('.', 1)[1].lower()
-        filename = f"{uuid.uuid4().hex}.{ext}"
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        url = url_for('static', filename=f'uploads/{filename}')
+        url = upload_to_cloudinary(file)
         return {'url': url}, 200
 
     @app.route('/forum')
@@ -341,15 +333,8 @@ def register_routes(app):
             file_url = ''
             file_name = ''
             if chat_type == 'long' and uploaded_file and uploaded_file.filename:
-                if allowed_file(uploaded_file.filename):
-                    ext = uploaded_file.filename.rsplit('.', 1)[1].lower()
-                    fname = f"chat_{uuid.uuid4().hex[:8]}.{ext}"
-                    uploaded_file.save(os.path.join(app.config['UPLOAD_FOLDER'], fname))
-                    file_url = url_for('static', filename=f'uploads/{fname}')
-                    file_name = uploaded_file.filename
-                else:
-                    flash('不支持的文件格式', 'error')
-                    return redirect(url_for('chat', peer_id=peer_id))
+                file_url = upload_to_cloudinary(uploaded_file)
+                file_name = uploaded_file.filename
 
             if not content and not file_url:
                 flash('消息不能为空', 'error')
@@ -599,11 +584,9 @@ def register_routes(app):
             if 'avatar' in request.files:
                 file = request.files['avatar']
                 if file and file.filename and allowed_file(file.filename):
-                    ext = file.filename.rsplit('.', 1)[1].lower()
-                    avatar_filename = f"avatar_{uuid.uuid4().hex[:8]}.{ext}"
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], avatar_filename))
-                    user.avatar = avatar_filename
-                    session['avatar_url'] = user.avatar_url
+                    avatar_url = upload_to_cloudinary(file)
+                    user.avatar = avatar_url
+                    session['avatar_url'] = avatar_url
                     db.session.commit()
                     flash('头像更新成功', 'success')
 

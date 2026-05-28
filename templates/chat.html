@@ -23,15 +23,9 @@
                         <div class="chat-text">{{ msg.content }}</div>
                         {% endif %}
                         {% if msg.file_url %}
-                            {% if msg.file_url.endswith('.png') or msg.file_url.endswith('.jpg') or msg.file_url.endswith('.jpeg') or msg.file_url.endswith('.gif') or msg.file_url.endswith('.webp') %}
                             <a href="{{ msg.file_url }}" target="_blank">
                                 <img class="chat-image" src="{{ msg.file_url }}" alt="{{ msg.file_name }}">
                             </a>
-                            {% else %}
-                            <a href="{{ msg.file_url }}" class="chat-file-link" download>
-                                📎 {{ msg.file_name }}
-                            </a>
-                            {% endif %}
                         {% endif %}
                     </div>
                     {% endfor %}
