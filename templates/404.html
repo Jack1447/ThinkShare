@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}404 - 页面不存在{% endblock %}
+{% block content %}
+<div style="text-align:center;padding:100px 20px;">
+    <h1 style="font-size:72px;color:#ddd;">404</h1>
+    <p style="font-size:18px;color:#999;margin:16px 0;">页面不存在</p>
+    <a href="{{ url_for('forum') }}" style="color:#1a1a1a;">返回论坛首页</a>
+</div>
+{% endblock %}
