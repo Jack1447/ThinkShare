@@ -41,7 +41,10 @@ def register_auth_routes(app):
             if 'avatar' in request.files:
                 file = request.files['avatar']
                 if file and file.filename and allowed_file(file.filename):
-                    avatar_url = upload_to_cloudinary(file)
+                    try:
+                        avatar_url = upload_to_cloudinary(file)
+                    except Exception:
+                        pass
 
             new_user = User(
                 username=username,
