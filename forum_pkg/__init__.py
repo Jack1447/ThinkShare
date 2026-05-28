@@ -43,7 +43,10 @@ def setup_logging(app):
 
 def create_app(config_name=None):
     if config_name is None:
-        config_name = os.environ.get('FLASK_CONFIG', 'development')
+        if os.environ.get('DATABASE_URL'):
+            config_name = 'production'
+        else:
+            config_name = 'development'
 
     package_dir = os.path.abspath(os.path.dirname(__file__))
     project_dir = os.path.dirname(package_dir)
