@@ -1,3 +1,6 @@
+from gevent import monkey
+monkey.patch_all()
+
 from forum_pkg import create_app, socketio
 
 app = create_app()
