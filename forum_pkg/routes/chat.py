@@ -1,6 +1,92 @@
 from flask import render_template, request, redirect, url_for, flash, session
-from forum_pkg import db, upload_to_cloudinary
+from flask_socketio import emit, join_room
+from forum_pkg import db, upload_to_cloudinary, socketio
 from forum_pkg.models import User, Message, Friend, add_notification
+
+
+def _room_name(uid1, uid2):
+    return f"chat_{min(uid1, uid2)}_{max(uid1, uid2)}"
+
+
+def _check_chat_limit(my_id, peer_id):
+    existing = Message.query.filter(
+        ((Message.sender_id == my_id) & (Message.receiver_id == peer_id)) |
+        ((Message.sender_id == peer_id) & (Message.receiver_id == my_id)),
+        Message.chat_type == 'short'
+    ).count()
+    if existing >= 10:
+        return False, '短时聊天已达10条上限'
+
+    peer_replied = Message.query.filter_by(
+        sender_id=peer_id, receiver_id=my_id, chat_type='short'
+    ).first() is not None
+
+    my_sent = Message.query.filter_by(
+        sender_id=my_id, receiver_id=peer_id, chat_type='short'
+    ).count()
+
+    if not peer_replied and my_sent >= 1:
+        return False, '对方尚未回复，无法继续发送'
+
+    return True, ''
+
+
+@socketio.on('join')
+def on_join(data):
+    if 'user_id' not in session:
+        return
+    peer_id = int(data.get('peer_id', 0))
+    if peer_id:
+        join_room(_room_name(session['user_id'], peer_id))
+
+
+@socketio.on('send_message')
+def on_send_message(data):
+    if 'user_id' not in session:
+        return
+
+    my_id = session['user_id']
+    peer_id = int(data.get('peer_id', 0))
+    content = (data.get('content', '') or '').strip()
+    chat_type = data.get('chat_type', 'short')
+
+    if not content:
+        return
+
+    if chat_type == 'short':
+        ok, err_msg = _check_chat_limit(my_id, peer_id)
+        if not ok:
+            emit('error', {'message': err_msg})
+            return
+
+    msg = Message(
+        sender_id=my_id,
+        receiver_id=peer_id,
+        content=content,
+        chat_type=chat_type
+    )
+    db.session.add(msg)
+    db.session.commit()
+
+    sender = db.session.get(User, my_id)
+    payload = {
+        'id': msg.id,
+        'sender_id': my_id,
+        'sender_nickname': sender.nickname if sender else '',
+        'content': content,
+        'file_url': '',
+        'file_name': '',
+        'created_at': msg.created_at.strftime('%H:%M'),
+        'chat_type': chat_type,
+    }
+
+    room = _room_name(my_id, peer_id)
+    emit('new_message', payload, room=room)
+
+    if chat_type == 'short':
+        add_notification(peer_id, my_id, 'short_chat',
+                       url_for('chat', peer_id=my_id),
+                       f"{session.get('nickname','')} 给你发了一条短时消息")
 
 
 def register_chat_routes(app):
@@ -38,26 +124,9 @@ def register_chat_routes(app):
                 return redirect(url_for('chat', peer_id=peer_id))
 
             if chat_type == 'short':
-                existing_short = Message.query.filter(
-                    ((Message.sender_id == my_id) & (Message.receiver_id == peer_id)) |
-                    ((Message.sender_id == peer_id) & (Message.receiver_id == my_id)),
-                    Message.chat_type == 'short'
-                ).count()
-
-                if existing_short >= 10:
-                    flash('短时聊天已达10条上限', 'error')
-                    return redirect(url_for('chat', peer_id=peer_id))
-
-                peer_replied = Message.query.filter_by(
-                    sender_id=peer_id, receiver_id=my_id, chat_type='short'
-                ).first() is not None
-
-                my_sent = Message.query.filter_by(
-                    sender_id=my_id, receiver_id=peer_id, chat_type='short'
-                ).count()
-
-                if not peer_replied and my_sent >= 1:
-                    flash('对方尚未回复，无法继续发送', 'error')
+                ok, err_msg = _check_chat_limit(my_id, peer_id)
+                if not ok:
+                    flash(err_msg, 'error')
                     return redirect(url_for('chat', peer_id=peer_id))
 
             msg = Message(

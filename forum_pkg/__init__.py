@@ -4,12 +4,14 @@ import cloudinary
 import cloudinary.uploader
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO
 from sqlalchemy import inspect, text
 from dotenv import load_dotenv
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
 db = SQLAlchemy()
+socketio = SocketIO()
 
 cloudinary.config(
     cloudinary_url=os.environ.get('CLOUDINARY_URL', '')
@@ -60,6 +62,7 @@ def create_app(config_name=None):
 
     setup_logging(app)
     db.init_app(app)
+    socketio.init_app(app)
 
     @app.errorhandler(404)
     def not_found(e):
