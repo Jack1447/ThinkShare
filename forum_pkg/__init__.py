@@ -1,7 +1,5 @@
 import os
 import logging
-import cloudinary
-import cloudinary.uploader
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
@@ -13,10 +11,6 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file_
 db = SQLAlchemy()
 socketio = SocketIO()
 
-cloudinary.config(
-    cloudinary_url=os.environ.get('CLOUDINARY_URL', '')
-)
-
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 
@@ -25,6 +19,7 @@ def allowed_file(filename):
 
 
 def upload_to_cloudinary(file):
+    import cloudinary.uploader
     result = cloudinary.uploader.upload(file)
     return result['secure_url']
 
@@ -59,6 +54,11 @@ def create_app(config_name=None):
     app.config.from_object(config_map[config_name])
     if hasattr(config_map[config_name], 'init_app'):
         config_map[config_name].init_app(app)
+
+    import cloudinary
+    cloudinary.config(
+        cloudinary_url=os.environ.get('CLOUDINARY_URL', '')
+    )
 
     app.config['UPLOAD_FOLDER'] = os.path.join(project_dir, 'static', 'uploads')
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
