@@ -82,7 +82,7 @@
             <h3>💬 评论 ({{ post.comment_count }})</h3>
 
             <form class="comment-form" method="POST" action="{{ url_for('add_comment', post_id=post.id) }}">
-                <textarea name="content" placeholder="写下你的评论... 支持 Markdown 语法" required></textarea>
+                <textarea name="content" placeholder="写下你的评论..." required></textarea>
                 <button type="submit" class="btn btn-outline">发表评论</button>
             </form>
 
