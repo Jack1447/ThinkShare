@@ -1,6 +1,6 @@
 import os
 import uuid
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from flask import render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import markdown as md
@@ -336,43 +336,63 @@ def register_routes(app):
 
         if request.method == 'POST':
             content = request.form.get('content', '').strip()
-            if content:
-                if chat_type == 'short':
-                    existing_short = Message.query.filter(
-                        ((Message.sender_id == my_id) & (Message.receiver_id == peer_id)) |
-                        ((Message.sender_id == peer_id) & (Message.receiver_id == my_id)),
-                        Message.chat_type == 'short'
-                    ).count()
+            uploaded_file = request.files.get('file')
 
-                    if existing_short >= 10:
-                        flash('短时聊天已达10条上限', 'error')
-                        return redirect(url_for('chat', peer_id=peer_id))
+            file_url = ''
+            file_name = ''
+            if chat_type == 'long' and uploaded_file and uploaded_file.filename:
+                if allowed_file(uploaded_file.filename):
+                    ext = uploaded_file.filename.rsplit('.', 1)[1].lower()
+                    fname = f"chat_{uuid.uuid4().hex[:8]}.{ext}"
+                    uploaded_file.save(os.path.join(app.config['UPLOAD_FOLDER'], fname))
+                    file_url = url_for('static', filename=f'uploads/{fname}')
+                    file_name = uploaded_file.filename
+                else:
+                    flash('不支持的文件格式', 'error')
+                    return redirect(url_for('chat', peer_id=peer_id))
 
-                    peer_replied = Message.query.filter_by(
-                        sender_id=peer_id, receiver_id=my_id, chat_type='short'
-                    ).first() is not None
+            if not content and not file_url:
+                flash('消息不能为空', 'error')
+                return redirect(url_for('chat', peer_id=peer_id))
 
-                    my_sent = Message.query.filter_by(
-                        sender_id=my_id, receiver_id=peer_id, chat_type='short'
-                    ).count()
+            if chat_type == 'short':
+                existing_short = Message.query.filter(
+                    ((Message.sender_id == my_id) & (Message.receiver_id == peer_id)) |
+                    ((Message.sender_id == peer_id) & (Message.receiver_id == my_id)),
+                    Message.chat_type == 'short'
+                ).count()
 
-                    if not peer_replied and my_sent >= 1:
-                        flash('对方尚未回复，无法继续发送', 'error')
-                        return redirect(url_for('chat', peer_id=peer_id))
+                if existing_short >= 10:
+                    flash('短时聊天已达10条上限', 'error')
+                    return redirect(url_for('chat', peer_id=peer_id))
 
-                msg = Message(
-                    sender_id=my_id,
-                    receiver_id=peer_id,
-                    content=content,
-                    chat_type=chat_type
-                )
-                db.session.add(msg)
-                db.session.commit()
+                peer_replied = Message.query.filter_by(
+                    sender_id=peer_id, receiver_id=my_id, chat_type='short'
+                ).first() is not None
 
-                if chat_type == 'short':
-                    add_notification(peer_id, my_id, 'short_chat',
-                                   url_for('chat', peer_id=my_id),
-                                   f"{session.get('nickname','')} 给你发了一条短时消息")
+                my_sent = Message.query.filter_by(
+                    sender_id=my_id, receiver_id=peer_id, chat_type='short'
+                ).count()
+
+                if not peer_replied and my_sent >= 1:
+                    flash('对方尚未回复，无法继续发送', 'error')
+                    return redirect(url_for('chat', peer_id=peer_id))
+
+            msg = Message(
+                sender_id=my_id,
+                receiver_id=peer_id,
+                content=content,
+                file_url=file_url,
+                file_name=file_name,
+                chat_type=chat_type
+            )
+            db.session.add(msg)
+            db.session.commit()
+
+            if chat_type == 'short':
+                add_notification(peer_id, my_id, 'short_chat',
+                               url_for('chat', peer_id=my_id),
+                               f"{session.get('nickname','')} 给你发了一条短时消息")
 
             return redirect(url_for('chat', peer_id=peer_id))
 
@@ -661,6 +681,57 @@ def register_routes(app):
                                my_sent_requests=my_sent_requests,
                                following_users=following_users,
                                follower_users=follower_users)
+
+    @app.route('/search')
+    def search():
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+
+        q = request.args.get('q', '').strip()
+        search_type = request.args.get('type', 'post')
+        category = request.args.get('category', 'all')
+        time_filter = request.args.get('time', 'all')
+
+        posts = []
+        users = []
+        current_time = datetime.utcnow()
+
+        if search_type == 'user' and q:
+            users = User.query.filter(
+                User.nickname.contains(q),
+                User.is_banned == False
+            ).all()
+
+        elif q:
+            query = Post.query
+
+            if category != 'all':
+                query = query.filter(Post.category == category)
+
+            if time_filter == 'day':
+                cutoff = current_time - timedelta(days=1)
+                query = query.filter(Post.created_at >= cutoff)
+            elif time_filter == 'half_month':
+                cutoff = current_time - timedelta(days=15)
+                query = query.filter(Post.created_at >= cutoff)
+            elif time_filter == 'month':
+                cutoff = current_time - timedelta(days=30)
+                query = query.filter(Post.created_at >= cutoff)
+            elif time_filter == 'half_year':
+                cutoff = current_time - timedelta(days=180)
+                query = query.filter(Post.created_at >= cutoff)
+
+            posts = query.filter(
+                (Post.title.contains(q)) | (Post.content.contains(q))
+            ).order_by(Post.created_at.desc()).all()
+
+        return render_template('search.html',
+                               query=q,
+                               search_type=search_type,
+                               current_category=category,
+                               current_time=time_filter,
+                               posts=posts,
+                               users=users)
 
     @app.route('/admin')
     def admin():

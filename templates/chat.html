@@ -19,7 +19,20 @@
                 {% if messages %}
                     {% for msg in messages %}
                     <div class="chat-msg {{ 'sent' if msg.sender_id == session['user_id'] else 'received' }}">
-                        {{ msg.content }}
+                        {% if msg.content %}
+                        <div class="chat-text">{{ msg.content }}</div>
+                        {% endif %}
+                        {% if msg.file_url %}
+                            {% if msg.file_url.endswith('.png') or msg.file_url.endswith('.jpg') or msg.file_url.endswith('.jpeg') or msg.file_url.endswith('.gif') or msg.file_url.endswith('.webp') %}
+                            <a href="{{ msg.file_url }}" target="_blank">
+                                <img class="chat-image" src="{{ msg.file_url }}" alt="{{ msg.file_name }}">
+                            </a>
+                            {% else %}
+                            <a href="{{ msg.file_url }}" class="chat-file-link" download>
+                                📎 {{ msg.file_name }}
+                            </a>
+                            {% endif %}
+                        {% endif %}
                     </div>
                     {% endfor %}
                 {% else %}
@@ -29,9 +42,17 @@
                 {% endif %}
             </div>
 
-            <form method="POST" class="chat-input" id="chat-form">
-                <input type="text" name="content" placeholder="输入消息..." required
-                    {% if chat_type == 'short' and total_count >= 10 %}disabled placeholder="已达10条上限"{% endif %}>
+            <form method="POST" class="chat-input" id="chat-form" enctype="multipart/form-data">
+                <input type="text" name="content" placeholder="输入消息..."
+                    {% if chat_type == 'short' and total_count >= 10 %}disabled{% endif %}>
+                {% if chat_type == 'long' %}
+                <label class="chat-file-btn" title="发送文件">
+                    📎
+                    <input type="file" name="file" id="chat-file-input" accept="image/*"
+                        onchange="document.getElementById('file-name').textContent = this.files[0] ? this.files[0].name : ''">
+                </label>
+                <span id="file-name" class="chat-file-name"></span>
+                {% endif %}
                 <button type="submit" class="btn btn-sm btn-reply-submit"
                     {% if chat_type == 'short' and total_count >= 10 %}disabled{% endif %}>发送</button>
             </form>
@@ -61,6 +82,10 @@
             setTimeout(function() {
                 var input = form.querySelector('input[name="content"]');
                 if (input) input.value = '';
+                var fileInput = document.getElementById('chat-file-input');
+                if (fileInput) fileInput.value = '';
+                var fn = document.getElementById('file-name');
+                if (fn) fn.textContent = '';
             }, 50);
         });
     }

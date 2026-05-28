@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import inspect, text
 from dotenv import load_dotenv
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
@@ -42,6 +43,14 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+
+        inspector = inspect(db.engine)
+        existing_cols = [c['name'] for c in inspector.get_columns('messages')]
+        if 'file_url' not in existing_cols:
+            db.session.execute(text("ALTER TABLE messages ADD COLUMN file_url VARCHAR(200) DEFAULT ''"))
+        if 'file_name' not in existing_cols:
+            db.session.execute(text("ALTER TABLE messages ADD COLUMN file_name VARCHAR(200) DEFAULT ''"))
+        db.session.commit()
 
     return app
 

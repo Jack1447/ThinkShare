@@ -10,6 +10,16 @@
 
 <nav class="navbar">
     <a href="{{ url_for('forum') }}" class="navbar-brand">📚 校园交流平台</a>
+    {% if session.get('user_id') %}
+    <form class="navbar-search" action="{{ url_for('search') }}" method="GET">
+        <input type="text" name="q" placeholder="搜索帖子或用户..." value="{{ query if query else '' }}" required>
+        <select name="type">
+            <option value="post" {{ 'selected' if search_type == 'post' else '' }}>帖子</option>
+            <option value="user" {{ 'selected' if search_type == 'user' else '' }}>用户</option>
+        </select>
+        <button type="submit">搜索</button>
+    </form>
+    {% endif %}
     <div class="navbar-right">
         <a href="{{ url_for('notification_list') }}" class="bell-icon">
             🔔

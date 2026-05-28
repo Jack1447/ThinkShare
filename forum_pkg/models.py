@@ -85,10 +85,6 @@ class Comment(db.Model):
 
     replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True)
 
-    @property
-    def content_html(self):
-        return md.markdown(self.content, extensions=['fenced_code', 'nl2br'])
-
 class Like(db.Model):
     __tablename__ = 'likes'
     id = db.Column(db.Integer, primary_key=True)
@@ -106,7 +102,9 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sender_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     receiver_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
+    content = db.Column(db.Text, default='')
+    file_url = db.Column(db.String(200), default='')
+    file_name = db.Column(db.String(200), default='')
     chat_type = db.Column(db.String(20), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

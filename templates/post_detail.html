@@ -18,7 +18,7 @@
         <a href="{{ url_for('delete_comment', comment_id=comment.id) }}" class="delete-comment-btn" onclick="return confirm('确定要删除这条评论吗？所有回复也会被删除。')" title="删除">×</a>
         {% endif %}
     </div>
-    <div class="comment-body">{{ comment.content_html | safe }}</div>
+    <div class="comment-body" style="white-space:pre-wrap;">{{ comment.content }}</div>
     <div class="comment-reply-toggle">
         <a href="javascript:void(0)" class="reply-toggle-link" data-comment-id="{{ comment.id }}">回复</a>
     </div>
