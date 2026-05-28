@@ -4,7 +4,6 @@
 
 - 🌐 **线上地址**：[https://thinkshare-yvav.onrender.com](https://thinkshare-yvav.onrender.com)
 - 📦 **GitHub**：[Jack1447/ThinkShare](https://github.com/Jack1447/ThinkShare)
-- 📖 **部署指南**：[DEPLOY.md](./DEPLOY.md)
 
 ---
 
@@ -42,27 +41,12 @@ campus_forum/
 ├── static/
 │   ├── css/style.css     # 全局样式
 │   └── img/              # 默认头像
-├── templates/            # Jinja2 模板（13 个，含 404/500/macros）
+├── templates/            # Jinja2 模板
 ├── .env                  # 本地环境变量（不入库）
 ├── requirements.txt      # 依赖清单
 ├── run.py                # 开发入口
-├── DEPLOY.md             # 详细部署指南
 └── README.md
 ```
-
----
-
-## 🚀 本地开发
-
-```bash
-conda activate se
-pip install -r requirements.txt
-python run.py
-```
-
-访问 `http://127.0.0.1:5000`
-
-> 本地使用 SQLite，首次启动自动建表。需配置 `.env` 中的 `CLOUDINARY_URL` 才支持上传。
 
 ---
 
@@ -81,8 +65,142 @@ python run.py
 
 ---
 
+## 🚀 本地开发
+
+```bash
+conda activate se
+pip install -r requirements.txt
+python run.py
+```
+
+访问 `http://127.0.0.1:5000`
+
+### 配置 .env
+
+在项目根目录创建 `.env` 文件：
+
+```
+SECRET_KEY=campus_forum_secret_key_2024
+CLOUDINARY_URL=cloudinary://你的API_Key:你的API_Secret@你的Cloud_Name
+```
+
+---
+
+## ☁️ Cloudinary 文件存储
+
+### 为什么需要 Cloudinary
+
+Render 免费版没有持久磁盘，每次部署 `static/uploads/` 会被清空。所有用户上传（头像、帖子图片、聊天文件）存储在 Cloudinary 云端，数据库只存 URL。
+
+### 注册
+
+1. 打开 [Cloudinary](https://cloudinary.com) → **Sign Up for Free**，用 GitHub 或 Google 登录
+2. 注册后在 Dashboard 获取三个凭证：**Cloud Name**、**API Key**、**API Secret**
+3. 拼成一行：`cloudinary://API_Key:API_Secret@Cloud_Name`，写入 `.env` 的 `CLOUDINARY_URL`
+
+### 日常使用
+
+登录 Cloudinary → **Media Library** 可浏览所有已上传的文件。**Usage** 页面查看存储和流量使用（免费额度 25GB）。
+
+---
+
+## 🌐 部署到 Render.com
+
+### 1. 推送到 GitHub
+
+```bash
+git init
+git remote add origin https://github.com/Jack1447/ThinkShare.git
+git add .
+git commit -m "初始提交"
+git push -u origin main
+```
+
+### 2. 创建 Web Service
+
+1. 登录 [Render.com](https://render.com)，用 GitHub 登录
+2. **New +** → **Web Service**，关联 `Jack1447/ThinkShare`
+3. 配置：
+
+| 配置项 | 值 |
+|---|---|
+| Name | thinkshare |
+| Region | Singapore |
+| Branch | main |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `gunicorn run:app --worker-class gthread --threads 4 -w 1` |
+| Health Check Path | `/login` |
+| Instance Type | Free |
+
+### 3. 创建 PostgreSQL 数据库
+
+1. **New +** → **PostgreSQL**
+
+| 配置项 | 值 |
+|---|---|
+| Name | thinkshare-db |
+| Database | thinkshare |
+| User | thinkshare |
+| Region | Singapore |
+| Instance Type | Free |
+
+### 4. 配置环境变量
+
+在 Web Service → **Environment** 添加：
+
+| Key | Value |
+|---|---|
+| `DATABASE_URL` | 数据库的 Internal Database URL |
+| `SECRET_KEY` | 任意复杂字符串 |
+| `CLOUDINARY_URL` | Cloudinary 的完整 URL |
+
+点 **Save Changes**，Render 自动重新部署。
+
+### 5. 设置管理员
+
+由于免费版不支持 Shell，通过本地连接远程数据库：
+
+```powershell
+$env:DATABASE_URL="数据库的External Database URL"; conda activate se; python -c "from forum_pkg import create_app; from forum_pkg.models import User, db; app = create_app(); app.app_context().push(); user = User.query.filter_by(username='你的用户名').first(); user.is_admin = True; db.session.commit()"
+```
+
+---
+
+## 🔄 更新代码
+
+```bash
+git add .
+git commit -m "描述改动"
+git push
+```
+
+Render 自动检测 GitHub 推送并重新部署（Auto-Deploy）。
+
+---
+
+## ⏸️ 暂停与恢复
+
+免费版有 750 小时/月额度。
+
+| 操作 | 方法 |
+|---|---|
+| 暂停 | Web Service → **Suspend Web Service** |
+| 恢复 | **Resume Web Service**（需等待几十秒冷启动） |
+
+数据库和 Cloudinary 无需暂停，不消耗 Web Service 小时数。
+
+---
+
+## 🔧 数据库自动迁移
+
+`__init__.py` 中实现了自动迁移：每次启动检查表结构，缺少的列自动添加。新增模型字段后**不需要手动删数据库**。
+
+---
+
 ## ⚠️ 注意事项
 
-- Render 免费版 15 分钟无访问自动休眠，唤醒需 30-50 秒
-- 免费版无持久磁盘，文件全部走 Cloudinary 云存储
-- PostgreSQL 免费版 1GB，Cloudinary 免费版 25GB
+1. Render 免费版 15 分钟无访问自动休眠，唤醒需 30-50 秒
+2. 免费版无持久磁盘，文件全部走 Cloudinary 云存储
+3. PostgreSQL 免费版 1GB 存储，90 天试用期
+4. Cloudinary 免费版 25GB 存储 + 25GB/月流量
+5. 密钥如暴露后，在对应平台轮换密码
