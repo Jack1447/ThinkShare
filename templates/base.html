@@ -39,7 +39,7 @@
 
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-        <div style="max-width:1120px;margin:70px auto 0;padding:0 20px;">
+        <div style="max-width:1120px;margin:70px auto 0;padding:0 20px;" id="flash-container">
             {% for category, message in messages %}
                 <div class="flash-{{ category }} flash-msg">{{ message }}</div>
             {% endfor %}
@@ -48,6 +48,22 @@
 {% endwith %}
 
 {% block content %}{% endblock %}
+
+<script>
+(function() {
+    var container = document.getElementById('flash-container');
+    if (container) {
+        var msgs = container.querySelectorAll('.flash-msg');
+        msgs.forEach(function(msg) {
+            setTimeout(function() {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s';
+                setTimeout(function() { msg.remove(); }, 500);
+            }, 3000);
+        });
+    }
+})();
+</script>
 
 </body>
 </html>

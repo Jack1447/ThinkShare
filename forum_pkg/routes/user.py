@@ -135,8 +135,10 @@ def register_user_routes(app):
                         session['avatar_url'] = avatar_url
                         db.session.commit()
                         flash('头像更新成功', 'success')
+                        return redirect(url_for('profile'))
                     except Exception as e:
                         flash(f'头像上传失败: {str(e)}', 'error')
+                        return redirect(url_for('profile'))
 
             new_nickname = request.form.get('nickname', '').strip()
             if new_nickname and new_nickname != user.nickname:
@@ -144,15 +146,17 @@ def register_user_routes(app):
                 session['nickname'] = new_nickname
                 db.session.commit()
                 flash('昵称更新成功', 'success')
+                return redirect(url_for('profile'))
 
-            ps = get_privacy(user.id)
-            ps.show_posts = request.form.get('show_posts') == '1'
-            ps.show_favorites = request.form.get('show_favorites') == '1'
-            ps.show_following = request.form.get('show_following') == '1'
-            ps.allow_short_chat = request.form.get('allow_short_chat') == '1'
-            ps.allow_friend_request = request.form.get('allow_friend_request') == '1'
-            db.session.commit()
-            flash('隐私设置已更新', 'success')
+            if 'show_posts' in request.form:
+                ps = get_privacy(user.id)
+                ps.show_posts = request.form.get('show_posts') == '1'
+                ps.show_favorites = request.form.get('show_favorites') == '1'
+                ps.show_following = request.form.get('show_following') == '1'
+                ps.allow_short_chat = request.form.get('allow_short_chat') == '1'
+                ps.allow_friend_request = request.form.get('allow_friend_request') == '1'
+                db.session.commit()
+                flash('隐私设置已更新', 'success')
 
             return redirect(url_for('profile'))
 
