@@ -126,8 +126,10 @@ def register_user_routes(app):
             return redirect(url_for('login'))
 
         if request.method == 'POST':
-            if 'avatar' in request.files:
-                file = request.files['avatar']
+            form_type = request.form.get('form_type', '')
+
+            if form_type == 'avatar':
+                file = request.files.get('avatar')
                 if file and file.filename and allowed_file(file.filename):
                     try:
                         avatar_url = upload_to_cloudinary(file)
@@ -135,10 +137,11 @@ def register_user_routes(app):
                         session['avatar_url'] = avatar_url
                         db.session.commit()
                         flash('头像更新成功', 'success')
-                        return redirect(url_for('profile'))
                     except Exception as e:
                         flash(f'头像上传失败: {str(e)}', 'error')
-                        return redirect(url_for('profile'))
+                else:
+                    flash('请选择有效的图片文件', 'error')
+                return redirect(url_for('profile'))
 
             new_nickname = request.form.get('nickname', '').strip()
             if new_nickname and new_nickname != user.nickname:

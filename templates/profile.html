@@ -8,6 +8,7 @@
 
         <div class="profile-header">
             <form method="POST" enctype="multipart/form-data" id="avatar-form">
+                <input type="hidden" name="form_type" value="avatar">
                 <div class="profile-avatar-wrapper" onclick="document.getElementById('avatar-input').click()">
                     <img class="profile-avatar" src="{{ user.avatar_url }}" alt="avatar">
                     <span class="avatar-change-hint">更换头像</span>
