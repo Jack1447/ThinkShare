@@ -1,9 +1,11 @@
 # ThinkShare 校园交流平台
 
-基于 Flask + PostgreSQL 的全功能校园社区论坛，支持发帖、评论、实时聊天、好友系统、管理后台等。
+基于 Flask + React 的全功能校园社区论坛，支持发帖、评论、实时聊天、好友系统、管理后台等。
 
 - 🌐 **线上地址**：[https://thinkshare-yvav.onrender.com](https://thinkshare-yvav.onrender.com)
 - 📦 **GitHub**：[Jack1447/ThinkShare](https://github.com/Jack1447/ThinkShare)
+
+> ℹ️ 本分支 (`react-frontend`) 使用 **React + Tailwind CSS + JWT** 前后端分离架构。旧的 Jinja2 模板版本在 [`main`](https://github.com/Jack1447/ThinkShare/tree/main) 分支。
 
 ---
 
@@ -11,11 +13,11 @@
 
 | 模块 | 功能 |
 |---|---|
-| 🧑‍💻 用户系统 | 注册/登录，头像上传，昵称修改 |
-| 📄 论坛 | 分类浏览（日常/新闻/学术/二手），Markdown 发帖，图片拖拽上传 |
-| 💬 帖子交互 | 评论/回复（纯文本），点赞，收藏，浏览计数 |
+| 🧑‍💻 用户系统 | 注册/登录（JWT），头像上传，昵称修改 |
+| 📄 论坛 | 分类浏览（日常/新闻/学术/二手），Markdown 发帖，图片上传 |
+| 💬 帖子交互 | 评论/回复（树形嵌套），点赞，收藏，浏览计数 |
 | 🔍 搜索 | 搜索帖子（标题+内容，板块+时间筛选），搜索用户（昵称） |
-| 💬 实时聊天 | **WebSocket 实时消息**，短时聊天（10条限制），好友无限聊天，图片发送 |
+| 💬 实时聊天 | WebSocket 实时消息，短时聊天（10条限制），好友无限聊天 |
 | 👥 社交 | 关注/取关，好友请求/同意/拒绝，粉丝发帖通知 |
 | 🔔 通知 | 评论、回复、好友请求、短时消息等系统通知 |
 | 🏠 个人主页 | 帖子/收藏/关注/粉丝/好友/短时联系人/隐私设置 |
@@ -28,23 +30,32 @@
 
 ```
 campus_forum/
-├── forum_pkg/
-│   ├── __init__.py       # 应用工厂，Cloudinary/SocketIO 初始化，自动迁移
-│   ├── config.py         # 配置分离（开发/生产）
-│   ├── models.py         # 数据模型（9 个表）
-│   └── routes/           # 路由模块（重构拆分）
-│       ├── auth.py       #   登录/注册/登出
-│       ├── forum.py      #   论坛/帖子/评论/搜索
-│       ├── chat.py       #   WebSocket 聊天/好友
-│       ├── user.py       #   个人主页/用户主页/关注/通知
-│       └── admin.py      #   管理后台
+├── forum_pkg/               # Flask 后端
+│   ├── __init__.py          # 应用工厂，JWT/CORS/Cloudinary/SocketIO 初始化
+│   ├── config.py            # 配置分离（开发/生产）
+│   ├── models.py            # 数据模型（9 个表）
+│   └── routes/
+│       ├── __init__.py      # 路由注册入口
+│       └── api/             # REST API（JSON 响应）
+│           ├── auth.py      #   JWT 登录/注册/获取当前用户
+│           ├── forum.py     #   论坛/帖子CRUD/评论/点赞/收藏/搜索/上传
+│           ├── user.py      #   个人主页/用户主页/关注/好友/通知/隐私
+│           ├── chat.py      #   聊天/发送消息
+│           └── admin.py     #   管理后台/封禁/解封
+├── frontend/                # React 前端
+│   ├── src/
+│   │   ├── components/      # 通用组件（Navbar, PostCard, Toast...）
+│   │   ├── contexts/        # AuthContext（JWT 状态管理）
+│   │   ├── pages/           # 12 个页面
+│   │   ├── services/        # Axios API 服务层
+│   │   ├── App.jsx          # 路由配置
+│   │   └── index.css        # Tailwind CSS + 自定义样式
+│   ├── tailwind.config.js
+│   └── vite.config.js       # 开发代理配置
 ├── static/
-│   ├── css/style.css     # 全局样式
-│   └── img/              # 默认头像
-├── templates/            # Jinja2 模板
-├── .env                  # 本地环境变量（不入库）
-├── requirements.txt      # 依赖清单
-├── run.py                # 开发入口
+│   └── img/default_avatar.svg
+├── requirements.txt
+├── run.py                   # Flask 开发入口
 └── README.md
 ```
 
@@ -54,26 +65,38 @@ campus_forum/
 
 | 层级 | 技术 |
 |---|---|
-| 后端框架 | Flask 3.x |
+| 前端框架 | React 18 + Vite |
+| 前端样式 | Tailwind CSS v3 |
+| 前端路由 | React Router v6 |
+| HTTP 请求 | Axios |
+| 后端框架 | Flask 3.x + REST JSON API |
+| 认证 | Flask-JWT-Extended（JWT Token） |
 | 实时通信 | Flask-SocketIO + WebSocket |
 | 数据库 | PostgreSQL（生产）/ SQLite（开发） |
 | ORM | Flask-SQLAlchemy |
 | 文件存储 | Cloudinary 云存储 |
-| 生产服务器 | Gunicorn（gthread 多线程） |
+| 生产服务器 | Gunicorn |
 | 部署平台 | Render.com |
-| 版本控制 | Git + GitHub |
 
 ---
 
 ## 🚀 本地开发
 
+需要两个终端：
+
 ```bash
+# 终端1：启动 Flask 后端（5000端口）
 conda activate se
 pip install -r requirements.txt
 python run.py
+
+# 终端2：启动 React 前端（5173端口，自动代理 API 到 5000）
+cd frontend
+npm install
+npm run dev
 ```
 
-访问 `http://127.0.0.1:5000`
+访问 `http://localhost:5173`
 
 ### 配置 .env
 
@@ -88,19 +111,11 @@ CLOUDINARY_URL=cloudinary://你的API_Key:你的API_Secret@你的Cloud_Name
 
 ## ☁️ Cloudinary 文件存储
 
-### 为什么需要 Cloudinary
+所有用户上传（头像、帖子图片、聊天文件）存储在 Cloudinary 云端，数据库只存 URL。
 
-Render 免费版没有持久磁盘，每次部署 `static/uploads/` 会被清空。所有用户上传（头像、帖子图片、聊天文件）存储在 Cloudinary 云端，数据库只存 URL。
-
-### 注册
-
-1. 打开 [Cloudinary](https://cloudinary.com) → **Sign Up for Free**，用 GitHub 或 Google 登录
-2. 注册后在 Dashboard 获取三个凭证：**Cloud Name**、**API Key**、**API Secret**
-3. 拼成一行：`cloudinary://API_Key:API_Secret@Cloud_Name`，写入 `.env` 的 `CLOUDINARY_URL`
-
-### 日常使用
-
-登录 Cloudinary → **Media Library** 可浏览所有已上传的文件。**Usage** 页面查看存储和流量使用（免费额度 25GB）。
+1. 打开 [Cloudinary](https://cloudinary.com) → **Sign Up for Free**
+2. Dashboard 获取：**Cloud Name**、**API Key**、**API Secret**
+3. 拼成：`cloudinary://API_Key:API_Secret@Cloud_Name`，写入 `.env`
 
 ---
 
@@ -109,98 +124,36 @@ Render 免费版没有持久磁盘，每次部署 `static/uploads/` 会被清空
 ### 1. 推送到 GitHub
 
 ```bash
-git init
-git remote add origin https://github.com/Jack1447/ThinkShare.git
-git add .
-git commit -m "初始提交"
-git push -u origin main
+git push origin react-frontend
 ```
 
 ### 2. 创建 Web Service
 
-1. 登录 [Render.com](https://render.com)，用 GitHub 登录
-2. **New +** → **Web Service**，关联 `Jack1447/ThinkShare`
-3. 配置：
+1. [Render.com](https://render.com) → **New +** → **Web Service**
+2. 关联 `Jack1447/ThinkShare`
+
+配置：
 
 | 配置项 | 值 |
 |---|---|
-| Name | thinkshare |
-| Region | Singapore |
-| Branch | main |
-| Build Command | `pip install -r requirements.txt` |
+| Branch | `react-frontend` |
+| Build Command | `pip install -r requirements.txt && cd frontend && npm install && npm run build && cd ..` |
 | Start Command | `gunicorn run:app --worker-class gthread --threads 4 -w 1` |
-| Health Check Path | `/login` |
-| Instance Type | Free |
+| Health Check Path | `/api/auth/login` |
 
-### 3. 创建 PostgreSQL 数据库
+### 3. 创建 PostgreSQL + 环境变量
 
-1. **New +** → **PostgreSQL**
+与 main 分支相同：创建 PostgreSQL 数据库，配置 `DATABASE_URL`、`SECRET_KEY`、`CLOUDINARY_URL` 环境变量。
 
-| 配置项 | 值 |
-|---|---|
-| Name | thinkshare-db |
-| Database | thinkshare |
-| User | thinkshare |
-| Region | Singapore |
-| Instance Type | Free |
+### ⚠️ React 静态文件
 
-### 4. 配置环境变量
-
-在 Web Service → **Environment** 添加：
-
-| Key | Value |
-|---|---|
-| `DATABASE_URL` | 数据库的 Internal Database URL |
-| `SECRET_KEY` | 任意复杂字符串 |
-| `CLOUDINARY_URL` | Cloudinary 的完整 URL |
-
-点 **Save Changes**，Render 自动重新部署。
-
-### 5. 设置管理员
-
-由于免费版不支持 Shell，通过本地连接远程数据库：
-
-```powershell
-$env:DATABASE_URL="数据库的External Database URL"; conda activate se; python -c "from forum_pkg import create_app; from forum_pkg.models import User, db; app = create_app(); app.app_context().push(); user = User.query.filter_by(username='你的用户名').first(); user.is_admin = True; db.session.commit()"
-```
+生产环境下 `__init__.py` 会自动检测 `frontend/dist/` 目录，将 React 打包文件作为静态资源提供服务。所有 `/api/` 请求走 Flask API，其他请求返回 React 的 `index.html`。
 
 ---
 
-## 🔄 更新代码
+## 🔄 分支说明
 
-```bash
-git add .
-git commit -m "描述改动"
-git push
-```
-
-Render 自动检测 GitHub 推送并重新部署（Auto-Deploy）。
-
----
-
-## ⏸️ 暂停与恢复
-
-免费版有 750 小时/月额度。
-
-| 操作 | 方法 |
-|---|---|
-| 暂停 | Web Service → **Suspend Web Service** |
-| 恢复 | **Resume Web Service**（需等待几十秒冷启动） |
-
-数据库和 Cloudinary 无需暂停，不消耗 Web Service 小时数。
-
----
-
-## 🔧 数据库自动迁移
-
-`__init__.py` 中实现了自动迁移：每次启动检查表结构，缺少的列自动添加。新增模型字段后**不需要手动删数据库**。
-
----
-
-## ⚠️ 注意事项
-
-1. Render 免费版 15 分钟无访问自动休眠，唤醒需 30-50 秒
-2. 免费版无持久磁盘，文件全部走 Cloudinary 云存储
-3. PostgreSQL 免费版 1GB 存储，90 天试用期
-4. Cloudinary 免费版 25GB 存储 + 25GB/月流量
-5. 密钥如暴露后，在对应平台轮换密码
+| 分支 | 架构 | 前端 |
+|---|---|---|
+| [`main`](https://github.com/Jack1447/ThinkShare/tree/main) | Flask + Jinja2 模板 | 服务端渲染 |
+| `react-frontend`（当前） | Flask REST API + React SPA | 客户端渲染 |
