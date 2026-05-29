@@ -117,10 +117,6 @@
         return div.innerHTML;
     }
 
-    function scrollToBottom() {
-        if (box) box.scrollTop = box.scrollHeight;
-    }
-
     window.onFileSelected = function(input) {
         if (input.files && input.files[0]) {
             if (fileNameEl) fileNameEl.textContent = input.files[0].name;
@@ -164,9 +160,6 @@
         }
     });
 
-    setInterval(function() {
-        scrollToBottom();
-    }, 200);
 })();
 </script>
 {% endblock %}

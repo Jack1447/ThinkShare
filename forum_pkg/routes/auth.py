@@ -29,8 +29,8 @@ def register_auth_routes(app):
                 flash('用户名长度需在 3-20 个字符之间', 'error')
                 return render_template('register.html')
 
-            if not re.match(r'^[a-zA-Z0-9_]+$', username):
-                flash('用户名只能包含字母、数字和下划线', 'error')
+            if not re.match(r'^[\u4e00-\u9fffa-zA-Z0-9_]+$', username):
+                flash('用户名只能包含中文、字母、数字和下划线', 'error')
                 return render_template('register.html')
 
             if len(nickname) > 20:
