@@ -16,15 +16,22 @@
     </aside>
 
     <main class="main-content">
-        {% if posts %}
-            {% for post in posts %}
+        {% if pagination.items %}
+            {% for post in pagination.items %}
             <div class="post-card" data-post-url="{{ url_for('post_detail', post_id=post.id) }}" onclick="location.href=this.getAttribute('data-post-url')">
                 <div class="post-card-header">
                     <img class="post-card-avatar" src="{{ post.author.avatar_url }}" alt="avatar">
                     <a href="{{ url_for('user_profile', user_id=post.user_id) }}" class="post-card-author-link" onclick="event.stopPropagation()">{{ post.author.nickname }}</a>
                     <span class="post-card-time">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    {% if session.get('is_admin') %}
+                    <a href="{{ url_for('pin_post', post_id=post.id) }}" class="pin-toggle-btn" onclick="event.stopPropagation()" title="{{ '取消置顶' if post.is_pinned else '置顶' }}" style="margin-left:auto;">
+                        {{ '📌' if post.is_pinned else '📍' }}
+                    </a>
+                    {% endif %}
                 </div>
-                <div class="post-card-title">{{ post.title }}</div>
+                <div class="post-card-title">
+                    {% if post.is_pinned %}<span class="pin-badge">📌 置顶</span>{% endif %}
+                    {{ post.title }}</div>
                 <div class="post-card-summary">{{ post.content_plain }}</div>
                 <div class="post-card-footer">
                     <span>❤️ {{ post.like_count }}</span>
@@ -41,6 +48,31 @@
                 </div>
             </div>
             {% endfor %}
+
+            {% if pagination.pages > 1 %}
+            <div class="pagination">
+                {% if pagination.has_prev %}
+                <a href="{{ url_for('forum', category=current_category, page=pagination.prev_num) }}" class="pagination-btn">&laquo; 上一页</a>
+                {% else %}
+                <span class="pagination-btn disabled">&laquo; 上一页</span>
+                {% endif %}
+
+                {% for p in range(1, pagination.pages + 1) %}
+                    {% if p == pagination.page %}
+                    <span class="pagination-btn active">{{ p }}</span>
+                    {% else %}
+                    <a href="{{ url_for('forum', category=current_category, page=p) }}" class="pagination-btn">{{ p }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if pagination.has_next %}
+                <a href="{{ url_for('forum', category=current_category, page=pagination.next_num) }}" class="pagination-btn">下一页 &raquo;</a>
+                {% else %}
+                <span class="pagination-btn disabled">下一页 &raquo;</span>
+                {% endif %}
+            </div>
+            {% endif %}
+
         {% else %}
             <div class="empty-state" style="background:#fff;border-radius:8px;">
                 暂无帖子，快来发布第一个帖子吧！

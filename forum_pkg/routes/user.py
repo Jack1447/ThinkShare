@@ -1,4 +1,5 @@
 from flask import render_template, request, redirect, url_for, flash, session
+from sqlalchemy.orm import joinedload
 from forum_pkg import db, allowed_file, upload_to_cloudinary
 from forum_pkg.models import (
     User, Post, Favorite, Message, Friend, Follow, Notification,
@@ -44,17 +45,20 @@ def register_user_routes(app):
         favorited_posts = []
         if ps.show_favorites:
             favs = Favorite.query.filter_by(user_id=user_id).order_by(Favorite.id.desc()).all()
-            favorited_posts = [db.session.get(Post, fav.post_id) for fav in favs if db.session.get(Post, fav.post_id)]
+            post_ids = [fav.post_id for fav in favs]
+            if post_ids:
+                posts_map = {p.id: p for p in Post.query.options(joinedload(Post.author)).filter(Post.id.in_(post_ids)).all()}
+                favorited_posts = [posts_map[fav.post_id] for fav in favs if fav.post_id in posts_map]
 
         is_following = Follow.query.filter_by(follower_id=my_id, followed_id=user_id).first() is not None
 
         following_users = []
         if ps.show_following:
             flist = Follow.query.filter_by(follower_id=user_id).all()
-            for f in flist:
-                fu = db.session.get(User, f.followed_id)
-                if fu:
-                    following_users.append(fu)
+            followed_ids = [f.followed_id for f in flist]
+            if followed_ids:
+                users_map = {u.id: u for u in User.query.filter(User.id.in_(followed_ids)).all()}
+                following_users = [users_map[uid] for uid in followed_ids if uid in users_map]
 
         return render_template('user_profile.html',
                                target=target,
@@ -91,7 +95,8 @@ def register_user_routes(app):
     def notification_list():
         if 'user_id' not in session:
             return redirect(url_for('login'))
-        notifs = Notification.query.filter_by(user_id=session['user_id']).order_by(Notification.created_at.desc()).all()
+        notifs = Notification.query.options(joinedload(Notification.from_user)).filter_by(
+            user_id=session['user_id']).order_by(Notification.created_at.desc()).all()
         return render_template('notifications.html', notifications=notifs)
 
     @app.route('/notifications/read_all')
@@ -145,6 +150,9 @@ def register_user_routes(app):
 
             new_nickname = request.form.get('nickname', '').strip()
             if new_nickname and new_nickname != user.nickname:
+                if len(new_nickname) > 20:
+                    flash('昵称不能超过 20 个字符', 'error')
+                    return redirect(url_for('profile'))
                 user.nickname = new_nickname
                 session['nickname'] = new_nickname
                 db.session.commit()
@@ -165,20 +173,28 @@ def register_user_routes(app):
 
         my_posts = Post.query.filter_by(user_id=user.id).order_by(Post.created_at.desc()).all()
         my_favorites = Favorite.query.filter_by(user_id=user.id).order_by(Favorite.id.desc()).all()
-        favorited_posts = [db.session.get(Post, fav.post_id) for fav in my_favorites if db.session.get(Post, fav.post_id)]
+        post_ids = [fav.post_id for fav in my_favorites]
+        posts_map = {}
+        if post_ids:
+            posts_map = {p.id: p for p in Post.query.options(joinedload(Post.author)).filter(Post.id.in_(post_ids)).all()}
+        favorited_posts = [posts_map[fav.post_id] for fav in my_favorites if fav.post_id in posts_map]
 
         ps = get_privacy(user.id)
 
         short_contacts = set()
-        sent_msgs = Message.query.filter_by(sender_id=user.id, chat_type='short').all()
+        sent_msgs = Message.query.options(joinedload(Message.receiver)).filter_by(
+            sender_id=user.id, chat_type='short').all()
         for m in sent_msgs:
             short_contacts.add(m.receiver)
-        received_msgs = Message.query.filter_by(receiver_id=user.id, chat_type='short').all()
+        received_msgs = Message.query.options(joinedload(Message.sender)).filter_by(
+            receiver_id=user.id, chat_type='short').all()
         for m in received_msgs:
             short_contacts.add(m.sender)
         short_contacts.discard(user)
 
-        friends = Friend.query.filter(
+        friends = Friend.query.options(
+            joinedload(Friend.user), joinedload(Friend.friend)
+        ).filter(
             ((Friend.user_id == user.id) | (Friend.friend_id == user.id)),
             Friend.status == 'accepted'
         ).all()
@@ -192,22 +208,26 @@ def register_user_routes(app):
 
         short_contacts = {c for c in short_contacts if c.id not in friend_ids}
 
-        my_sent_requests = Friend.query.filter_by(user_id=user.id, status='pending').all()
-        pending_requests = Friend.query.filter_by(friend_id=user.id, status='pending').all()
+        my_sent_requests = Friend.query.options(
+            joinedload(Friend.user), joinedload(Friend.friend)
+        ).filter_by(user_id=user.id, status='pending').all()
+        pending_requests = Friend.query.options(
+            joinedload(Friend.user), joinedload(Friend.friend)
+        ).filter_by(friend_id=user.id, status='pending').all()
 
         following_users = []
         follows = Follow.query.filter_by(follower_id=user.id).all()
-        for f in follows:
-            fu = db.session.get(User, f.followed_id)
-            if fu:
-                following_users.append(fu)
+        followed_ids = [f.followed_id for f in follows]
+        if followed_ids:
+            users_map = {u.id: u for u in User.query.filter(User.id.in_(followed_ids)).all()}
+            following_users = [users_map[uid] for uid in followed_ids if uid in users_map]
 
         follower_users = []
         flws = Follow.query.filter_by(followed_id=user.id).all()
-        for f in flws:
-            fu = db.session.get(User, f.follower_id)
-            if fu:
-                follower_users.append(fu)
+        follower_ids = [f.follower_id for f in flws]
+        if follower_ids:
+            users_map = {u.id: u for u in User.query.filter(User.id.in_(follower_ids)).all()}
+            follower_users = [users_map[uid] for uid in follower_ids if uid in users_map]
 
         return render_template('profile.html',
                                user=user,

@@ -1,5 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash, session
 from flask_socketio import emit, join_room
+from sqlalchemy.orm import joinedload
 from forum_pkg import db, upload_to_cloudinary, socketio
 from forum_pkg.models import User, Message, Friend, add_notification
 
@@ -51,6 +52,10 @@ def on_send_message(data):
     chat_type = data.get('chat_type', 'short')
 
     if not content:
+        return
+
+    if len(content) > 2000:
+        emit('error', {'message': '消息不能超过 2000 个字符'})
         return
 
     if chat_type == 'short':
@@ -123,6 +128,10 @@ def register_chat_routes(app):
                 flash('消息不能为空', 'error')
                 return redirect(url_for('chat', peer_id=peer_id))
 
+            if len(content) > 2000:
+                flash('消息不能超过 2000 个字符', 'error')
+                return redirect(url_for('chat', peer_id=peer_id))
+
             if chat_type == 'short':
                 ok, err_msg = _check_chat_limit(my_id, peer_id)
                 if not ok:
@@ -148,12 +157,12 @@ def register_chat_routes(app):
             return redirect(url_for('chat', peer_id=peer_id))
 
         if is_friend:
-            messages = Message.query.filter(
+            messages = Message.query.options(joinedload(Message.sender)).filter(
                 ((Message.sender_id == my_id) & (Message.receiver_id == peer_id)) |
                 ((Message.sender_id == peer_id) & (Message.receiver_id == my_id))
             ).order_by(Message.created_at.asc()).all()
         else:
-            messages = Message.query.filter(
+            messages = Message.query.options(joinedload(Message.sender)).filter(
                 ((Message.sender_id == my_id) & (Message.receiver_id == peer_id)) |
                 ((Message.sender_id == peer_id) & (Message.receiver_id == my_id)),
                 Message.chat_type == 'short'

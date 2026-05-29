@@ -1,5 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
+import re
 from forum_pkg import db, allowed_file, upload_to_cloudinary
 from forum_pkg.models import User, Notification
 
@@ -22,6 +23,22 @@ def register_auth_routes(app):
 
             if not username or not nickname or not password:
                 flash('所有字段都必须填写', 'error')
+                return render_template('register.html')
+
+            if len(username) < 3 or len(username) > 20:
+                flash('用户名长度需在 3-20 个字符之间', 'error')
+                return render_template('register.html')
+
+            if not re.match(r'^[a-zA-Z0-9_]+$', username):
+                flash('用户名只能包含字母、数字和下划线', 'error')
+                return render_template('register.html')
+
+            if len(nickname) > 20:
+                flash('昵称不能超过 20 个字符', 'error')
+                return render_template('register.html')
+
+            if len(password) > 128:
+                flash('密码不能超过 128 位', 'error')
                 return render_template('register.html')
 
             if password != password_confirm:

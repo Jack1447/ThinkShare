@@ -400,6 +400,26 @@ a {
     color: #888;
 }
 
+.pin-badge {
+    background: #fff3cd;
+    color: #856404;
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-right: 6px;
+}
+
+.pin-toggle-btn {
+    font-size: 14px;
+    opacity: 0.5;
+    transition: opacity 0.15s;
+}
+
+.pin-toggle-btn:hover {
+    opacity: 1;
+}
+
 /* 按钮 */
 .btn {
     display: inline-block;
@@ -1685,6 +1705,77 @@ a {
     white-space: nowrap;
 }
 
+.report-trigger {
+    font-size: 13px;
+    color: #bbb;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+
+.report-trigger:hover {
+    color: #e74c3c;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px;
+    width: 360px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.modal-box h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+}
+
+.report-reason-list {
+    margin-bottom: 20px;
+}
+
+.report-reason-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #444;
+    transition: border-color 0.15s;
+}
+
+.report-reason-item:hover {
+    border-color: #bbb;
+}
+
+.report-reason-item input[type="radio"] {
+    accent-color: #1a1a1a;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
 /* 响应式 */
 @media (max-width: 900px) {
     .sidebar-right {
@@ -1703,4 +1794,45 @@ a {
     .navbar {
         padding: 0 16px;
     }
+}
+
+/* 分页 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 24px 0;
+}
+
+.pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #555;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    transition: all 0.15s;
+}
+
+.pagination-btn:hover {
+    border-color: #1a1a1a;
+    color: #1a1a1a;
+}
+
+.pagination-btn.active {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+}
+
+.pagination-btn.disabled {
+    color: #ccc;
+    pointer-events: none;
+    border-color: #eee;
 }
