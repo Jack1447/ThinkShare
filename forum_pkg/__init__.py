@@ -1,7 +1,7 @@
 import os
 import logging
 from datetime import timedelta
-from flask import Flask, render_template
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
 from flask_jwt_extended import JWTManager
@@ -50,9 +50,7 @@ def create_app(config_name=None):
     package_dir = os.path.abspath(os.path.dirname(__file__))
     project_dir = os.path.dirname(package_dir)
 
-    app = Flask(__name__,
-                template_folder=os.path.join(project_dir, 'templates'),
-                static_folder=os.path.join(project_dir, 'static'))
+    app = Flask(__name__)
 
     from forum_pkg.config import config_map
     app.config.from_object(config_map[config_name])
@@ -63,9 +61,6 @@ def create_app(config_name=None):
     cloudinary.config(
         cloudinary_url=os.environ.get('CLOUDINARY_URL', '')
     )
-
-    app.config['UPLOAD_FOLDER'] = os.path.join(project_dir, 'static', 'uploads')
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     app.config['JWT_SECRET_KEY'] = app.config['SECRET_KEY']
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
@@ -79,12 +74,12 @@ def create_app(config_name=None):
 
     @app.errorhandler(404)
     def not_found(e):
-        return render_template('404.html'), 404
+        return jsonify({'error': 'Not Found'}), 404
 
     @app.errorhandler(500)
     def internal_error(e):
         db.session.rollback()
-        return render_template('500.html'), 500
+        return jsonify({'error': 'Internal Server Error'}), 500
 
     @app.after_request
     def add_header(response):
