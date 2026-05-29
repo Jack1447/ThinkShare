@@ -5,6 +5,8 @@
 - 🌐 **线上地址**：[https://thinkshare-yvav.onrender.com](https://thinkshare-yvav.onrender.com)
 - 📦 **GitHub**：[Jack1447/ThinkShare](https://github.com/Jack1447/ThinkShare)
 
+> ℹ️ React + Tailwind CSS 前后端分离版本在 [`react-frontend`](https://github.com/Jack1447/ThinkShare/tree/react-frontend) 分支。
+
 ---
 
 ## ✨ 功能一览
