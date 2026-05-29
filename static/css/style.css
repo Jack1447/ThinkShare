@@ -39,6 +39,16 @@ a {
     letter-spacing: -0.5px;
 }
 
+.brand-fancy {
+    font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+    color: #8B5CF6;
+    font-size: 1.15em;
+}
+
+.auth-box h1 .brand-fancy {
+    font-size: 1.2em;
+}
+
 .navbar-right {
     display: flex;
     align-items: center;

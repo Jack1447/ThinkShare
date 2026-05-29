@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}校园交流平台{% endblock %}</title>
+    <title>{% block title %}ThinkShare{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
 <nav class="navbar">
-    <a href="{{ url_for('forum') }}" class="navbar-brand">📚 校园交流平台</a>
+    <a href="{{ url_for('forum') }}" class="navbar-brand"><span class="brand-fancy">𝓣</span>hink<span class="brand-fancy">𝓢</span>hare</a>
     {% if session.get('user_id') %}
     <form class="navbar-search" action="{{ url_for('search') }}" method="GET">
         <input type="text" name="q" placeholder="搜索帖子或用户..." value="{{ query if query else '' }}" required>
