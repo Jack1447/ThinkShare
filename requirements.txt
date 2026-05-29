@@ -10,3 +10,5 @@ cloudinary==1.44.2
 Flask-SocketIO==5.6.1
 gevent==26.5.0
 gevent-websocket==0.10.1
+flask-jwt-extended==4.7.4
+flask-cors==6.0.2

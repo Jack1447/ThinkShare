@@ -1,8 +1,11 @@
 import os
 import logging
+from datetime import timedelta
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
+from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 from sqlalchemy import inspect, text
 from dotenv import load_dotenv
 
@@ -10,6 +13,7 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file_
 
 db = SQLAlchemy()
 socketio = SocketIO()
+jwt = JWTManager()
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
@@ -63,6 +67,12 @@ def create_app(config_name=None):
     app.config['UPLOAD_FOLDER'] = os.path.join(project_dir, 'static', 'uploads')
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+    app.config['JWT_SECRET_KEY'] = app.config['SECRET_KEY']
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
+
+    CORS(app, supports_credentials=True)
+    jwt.init_app(app)
+
     setup_logging(app)
     db.init_app(app)
     socketio.init_app(app)
@@ -80,6 +90,12 @@ def create_app(config_name=None):
     def add_header(response):
         response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
         return response
+
+    @jwt.user_lookup_loader
+    def user_lookup_callback(_jwt_header, jwt_data):
+        from forum_pkg.models import User
+        user = db.session.get(User, jwt_data['sub'])
+        return user
 
     from forum_pkg.routes import register_all_routes
     register_all_routes(app)
