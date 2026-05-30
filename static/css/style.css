@@ -1416,11 +1416,13 @@ a {
 }
 
 .chat-msg-bubble {
+    width: fit-content;
     max-width: 70%;
     padding: 10px 14px;
     border-radius: 8px;
     font-size: 14px;
     line-height: 1.6;
+    overflow-wrap: break-word;
     word-break: break-word;
     white-space: pre-wrap;
 }
