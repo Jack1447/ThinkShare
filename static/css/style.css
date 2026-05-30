@@ -754,7 +754,6 @@ a {
 /* Markdown 渲染内容 */
 .markdown-body {
     word-break: break-word;
-    line-height: 1.7;
 }
 
 .markdown-body > br {
@@ -766,14 +765,14 @@ a {
 .markdown-body h3 { font-size: 17px; margin: 16px 0 8px; font-weight: 600; }
 .markdown-body h4 { font-size: 15px; margin: 14px 0 6px; font-weight: 600; }
 
-.markdown-body p { margin-bottom: 12px; }
+.markdown-body p { margin-bottom: 8px; line-height: 1.6; }
 
 .markdown-body ul, .markdown-body ol {
     padding-left: 24px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
-.markdown-body li { margin-bottom: 4px; }
+.markdown-body li { margin-bottom: 2px; }
 
 .markdown-body blockquote {
     border-left: 3px solid #ddd;
@@ -1424,7 +1423,6 @@ a {
     line-height: 1.6;
     overflow-wrap: break-word;
     word-break: break-word;
-    white-space: pre-wrap;
 }
 
 .chat-msg-bubble.sent {
@@ -1493,7 +1491,7 @@ a {
     cursor: not-allowed;
 }
 
-.chat-text { margin-bottom: 0; }
+.chat-text { margin-bottom: 0; white-space: pre-wrap; }
 
 .chat-image {
     max-width: 200px;
