@@ -82,16 +82,23 @@ document.getElementById('post-form').addEventListener('submit', function(e) {
 var cm = simplemde.codemirror;
 var cmWrapper = cm.getWrapperElement();
 
-function insertImageMarkdown(url) {
+function insertImageTag(url) {
+    var w = prompt('请输入图片显示宽度（如 600 或 80%，留空默认自适应）：', '');
+    var widthAttr = '';
+    if (w) {
+        var trimmed = w.trim();
+        if (/^\d+$/.test(trimmed)) { trimmed += 'px'; }
+        widthAttr = ' width="' + trimmed.replace(/"/g, '') + '"';
+    }
     var doc = cm.getDoc();
     var cursor = doc.getCursor();
-    doc.replaceRange('\n![](' + url + ')\n', cursor);
+    doc.replaceRange('\n<img src="' + url + '"' + widthAttr + '>\n', cursor);
 }
 
 function handleImageFile(file) {
     if (!file || !file.type.match(/^image\//)) return false;
     uploadImage(file, function(url) {
-        insertImageMarkdown(url);
+        insertImageTag(url);
     }, function() {
         alert('图片上传失败，请重试');
     });
