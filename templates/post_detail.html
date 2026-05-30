@@ -16,13 +16,15 @@
         <span class="comment-time">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
         {% if comment.user_id == session['user_id'] or session.get('is_admin') %}
         <a href="{{ url_for('delete_comment', comment_id=comment.id) }}" class="delete-comment-btn" onclick="return confirm('确定要删除这条评论吗？所有回复也会被删除。')" title="删除">×</a>
-        {% else %}
-        <a href="javascript:void(0)" class="report-trigger" onclick="showReportModal('comment', {{ comment.id }})" title="举报"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></a>
         {% endif %}
     </div>
     <div class="comment-body" style="white-space:pre-wrap;">{{ comment.content }}</div>
     <div class="comment-reply-toggle">
         <a href="javascript:void(0)" class="reply-toggle-link" data-comment-id="{{ comment.id }}">回复</a>
+        {% if comment.user_id != session['user_id'] %}
+        <span class="reply-report-sep">·</span>
+        <a href="javascript:void(0)" class="report-trigger" onclick="showReportModal('comment', {{ comment.id }})">举报</a>
+        {% endif %}
     </div>
     <form method="POST" action="{{ url_for('add_comment', post_id=post.id) }}" class="comment-reply-form" id="reply-form-{{ comment.id }}" style="display:none;">
         <input type="hidden" name="parent_id" value="{{ comment.id }}">

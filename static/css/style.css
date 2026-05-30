@@ -754,6 +754,11 @@ a {
 /* Markdown 渲染内容 */
 .markdown-body {
     word-break: break-word;
+    line-height: 1.7;
+}
+
+.markdown-body > br {
+    display: none;
 }
 
 .markdown-body h1 { font-size: 24px; margin: 20px 0 12px; font-weight: 700; }
@@ -841,6 +846,9 @@ a {
 
 .comment-reply-toggle {
     margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .comment-reply-toggle a {
@@ -850,6 +858,11 @@ a {
 
 .comment-reply-toggle a:hover {
     color: #333;
+}
+
+.reply-report-sep {
+    font-size: 12px;
+    color: #ccc;
 }
 
 .comment-reply-form {
@@ -1388,11 +1401,10 @@ a {
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    max-width: 100%;
 }
 
 .chat-msg-row.sent {
-    flex-direction: row-reverse;
+    justify-content: flex-end;
 }
 
 .chat-msg-avatar {
@@ -1404,7 +1416,7 @@ a {
 }
 
 .chat-msg-bubble {
-    max-width: 65%;
+    max-width: 70%;
     padding: 10px 14px;
     border-radius: 8px;
     font-size: 14px;
@@ -1446,7 +1458,7 @@ a {
     font-family: inherit;
     line-height: 1.5;
     max-height: 120px;
-    overflow-y: auto;
+    overflow-y: hidden;
     background: #f6f6f6;
 }
 

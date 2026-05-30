@@ -21,11 +21,7 @@
                     {% for msg in messages %}
                     <div class="chat-msg-row {{ 'sent' if msg.sender_id == session['user_id'] else 'received' }}">
                         {% if msg.sender_id == session['user_id'] %}
-                        <img class="chat-msg-avatar" src="{{ session.get('avatar_url', url_for('static', filename='img/default_avatar.svg')) }}" alt="avatar">
-                        {% else %}
-                        <img class="chat-msg-avatar" src="{{ msg.sender.avatar_url }}" alt="avatar">
-                        {% endif %}
-                        <div class="chat-msg-bubble {{ 'sent' if msg.sender_id == session['user_id'] else 'received' }}">
+                        <div class="chat-msg-bubble sent">
                             {% if msg.content %}
                             <div class="chat-text">{{ msg.content }}</div>
                             {% endif %}
@@ -35,6 +31,20 @@
                                 </a>
                             {% endif %}
                         </div>
+                        <img class="chat-msg-avatar" src="{{ session.get('avatar_url', url_for('static', filename='img/default_avatar.svg')) }}" alt="avatar">
+                        {% else %}
+                        <img class="chat-msg-avatar" src="{{ msg.sender.avatar_url }}" alt="avatar">
+                        <div class="chat-msg-bubble received">
+                            {% if msg.content %}
+                            <div class="chat-text">{{ msg.content }}</div>
+                            {% endif %}
+                            {% if msg.file_url %}
+                                <a href="{{ msg.file_url }}" target="_blank">
+                                    <img class="chat-image" src="{{ msg.file_url }}" alt="{{ msg.file_name }}">
+                                </a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 {% else %}
@@ -121,12 +131,18 @@
         avatar.className = 'chat-msg-avatar';
         avatar.src = avatarSrc;
         avatar.alt = 'avatar';
-        row.appendChild(avatar);
 
         var bubble = document.createElement('div');
         bubble.className = 'chat-msg-bubble ' + (isMine ? 'sent' : 'received');
         bubble.innerHTML = '<div class="chat-text">' + escapeHtml(msg.content) + '</div>';
-        row.appendChild(bubble);
+
+        if (isMine) {
+            row.appendChild(bubble);
+            row.appendChild(avatar);
+        } else {
+            row.appendChild(avatar);
+            row.appendChild(bubble);
+        }
 
         box.appendChild(row);
         box.scrollTop = box.scrollHeight;
