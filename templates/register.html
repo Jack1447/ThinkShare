@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
     <title>注册 - ThinkShare</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="auth-page">
     <div class="auth-box">
-        <h1><span class="brand-fancy">𝓣</span>hink<span class="brand-fancy">𝓢</span>hare</h1>
+        <h1><img src="{{ url_for('static', filename='img/favicon.svg') }}" alt="logo" class="auth-logo"><span class="brand-fancy">𝓣</span>hink<span class="brand-fancy">𝓢</span>hare</h1>
         <h2>注册新账号</h2>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash-{{ category }} flash-msg">{{ message }}</div>
-                {% endfor %}
+                <div class="toast-container" id="flash-container">
+                    {% for category, message in messages %}
+                        <div class="toast toast-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
             {% endif %}
         {% endwith %}
 
@@ -59,6 +62,25 @@
             reader.readAsDataURL(input.files[0]);
         }
     }
+
+(function() {
+    var container = document.getElementById('flash-container');
+    if (container) {
+        var toasts = container.querySelectorAll('.toast');
+        toasts.forEach(function(toast) {
+            toast.classList.add('toast-in');
+            setTimeout(function() {
+                toast.classList.add('toast-out');
+                setTimeout(function() {
+                    toast.remove();
+                    if (container.querySelectorAll('.toast').length === 0) {
+                        container.remove();
+                    }
+                }, 400);
+            }, 3000);
+        });
+    }
+})();
     </script>
 </body>
 </html>

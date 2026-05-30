@@ -17,7 +17,7 @@
         {% if comment.user_id == session['user_id'] or session.get('is_admin') %}
         <a href="{{ url_for('delete_comment', comment_id=comment.id) }}" class="delete-comment-btn" onclick="return confirm('确定要删除这条评论吗？所有回复也会被删除。')" title="删除">×</a>
         {% else %}
-        <a href="javascript:void(0)" class="report-trigger" onclick="showReportModal('comment', {{ comment.id }})" title="举报">🚩</a>
+        <a href="javascript:void(0)" class="report-trigger" onclick="showReportModal('comment', {{ comment.id }})" title="举报"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></a>
         {% endif %}
     </div>
     <div class="comment-body" style="white-space:pre-wrap;">{{ comment.content }}</div>
@@ -50,7 +50,7 @@
                 <img class="post-author-avatar" src="{{ post.author.avatar_url }}" alt="avatar">
                 <div class="post-author-info">
                     <a href="{{ url_for('user_profile', user_id=post.user_id) }}" class="post-author-name">{{ post.author.nickname }}</a>
-                    <span class="post-author-meta">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }} · 👁 {{ post.views }} 次阅读 · 
+                    <span class="post-author-meta">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }} · <svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> {{ post.views }} 次阅读 · 
                         <span class="post-tag">
                             {% if post.category == 'daily' %}日常生活
                             {% elif post.category == 'news' %}时事新闻
@@ -63,37 +63,39 @@
                 {% if post.user_id == session['user_id'] or session.get('is_admin') %}
                 {% if session.get('is_admin') %}
                 <a href="{{ url_for('pin_post', post_id=post.id) }}" class="pin-toggle-btn" title="{{ '取消置顶' if post.is_pinned else '置顶' }}">
-                    {{ '📌' if post.is_pinned else '📍' }}
+                    {% if post.is_pinned %}<svg width="16" height="16" viewBox="0 0 24 24" fill="#7c3aed" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5l-4 4L7 10l-1.5 1.5 7 7L14 17l1.5-4 4-4"/><line x1="9" y1="15" x2="4.5" y2="19.5"/><line x1="14.5" y1="4" x2="20" y2="9.5"/></svg>{% else %}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5l-4 4L7 10l-1.5 1.5 7 7L14 17l1.5-4 4-4"/><line x1="9" y1="15" x2="4.5" y2="19.5"/><line x1="14.5" y1="4" x2="20" y2="9.5"/></svg>{% endif %}
                 </a>
                 {% endif %}
-                <a href="{{ url_for('delete_post', post_id=post.id) }}" class="delete-btn" onclick="return confirm('确定要删除这个帖子吗？所有评论也会被删除。')" title="删除帖子">🗑️</a>
+                <a href="{{ url_for('delete_post', post_id=post.id) }}" class="delete-btn" onclick="return confirm('确定要删除这个帖子吗？所有评论也会被删除。')" title="删除帖子"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></a>
                 {% endif %}
             </div>
 
             <h1 class="post-detail-title">
-                {% if post.is_pinned %}<span class="pin-badge">📌 置顶</span>{% endif %}
+                {% if post.is_pinned %}<span class="pin-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="#7c3aed" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5l-4 4L7 10l-1.5 1.5 7 7L14 17l1.5-4 4-4"/><line x1="9" y1="15" x2="4.5" y2="19.5"/><line x1="14.5" y1="4" x2="20" y2="9.5"/></svg> 置顶</span>{% endif %}
                 {{ post.title }}</h1>
 
             <div class="post-detail-body markdown-body">{{ post_content_html | safe }}</div>
 
             <div class="post-actions">
-                <a href="javascript:void(0)" class="report-trigger" onclick="showReportModal('post', {{ post.id | tojson }})">🚩 举报</a>
+                <a href="javascript:void(0)" class="report-trigger" onclick="showReportModal('post', {{ post.id | tojson }})">举报</a>
                 <span style="flex:1;"></span>
                 <a href="{{ url_for('toggle_like', post_id=post.id) }}" class="{{ 'liked' if user_liked else '' }}">
-                    {{ '❤️' if user_liked else '🤍' }} {{ post.like_count }} 赞
+                    {% if user_liked %}<svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>{% else %}<svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>{% endif %} {{ post.like_count }} 赞
                 </a>
                 <a href="{{ url_for('toggle_favorite', post_id=post.id) }}" class="{{ 'favorited' if user_favorited else '' }}">
-                    {{ '⭐' if user_favorited else '☆' }} {{ post.favorite_count }} 收藏
+                    {% if user_favorited %}<svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>{% else %}<svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>{% endif %} {{ post.favorite_count }} 收藏
                 </a>
             </div>
         </div>
 
         <div class="comment-section" id="comments">
-            <h3>💬 评论 ({{ post.comment_count }})</h3>
+            <h3><svg class="icon-s" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 评论 ({{ post.comment_count }})</h3>
 
             <form class="comment-form" method="POST" action="{{ url_for('add_comment', post_id=post.id) }}">
                 <textarea name="content" placeholder="写下你的评论..." required></textarea>
-                <button type="submit" class="btn btn-outline">发表评论</button>
+                <div class="comment-form-actions">
+                    <button type="submit" class="btn btn-comment-submit">发表评论</button>
+                </div>
             </form>
 
             {% if root_comments %}
@@ -132,7 +134,7 @@ document.addEventListener('click', function(e) {
 
 <div class="modal-overlay" id="report-modal" style="display:none;">
     <div class="modal-box">
-        <h3>🚩 举报违规内容</h3>
+        <h3>举报违规内容</h3>
         <form method="POST" action="{{ url_for('submit_report') }}">
             <input type="hidden" name="target_type" id="report-target-type">
             <input type="hidden" name="target_id" id="report-target-id">

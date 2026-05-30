@@ -13,7 +13,7 @@
 
     <main class="main-content">
         <div class="search-header">
-            <h2>🔍 搜索结果：{{ query }}</h2>
+            <h2>搜索结果：{{ query }}</h2>
             {% if search_type == 'post' %}
             <div class="search-tabs">
                 <a href="?q={{ query }}&type=post&category=all&time={{ current_time }}" class="{{ 'active' if current_category == 'all' else '' }}">全部</a>
@@ -33,8 +33,8 @@
             {% endif %}
 
             <div class="search-type-switch">
-                <a href="?q={{ query }}&type=post" class="{{ 'active' if search_type == 'post' else '' }}">📄 帖子</a>
-                <a href="?q={{ query }}&type=user" class="{{ 'active' if search_type == 'user' else '' }}">👤 用户</a>
+                <a href="?q={{ query }}&type=post" class="{{ 'active' if search_type == 'post' else '' }}">帖子</a>
+                <a href="?q={{ query }}&type=user" class="{{ 'active' if search_type == 'user' else '' }}">用户</a>
             </div>
         </div>
 
@@ -48,19 +48,19 @@
                         <span class="post-card-time">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
                         {% if session.get('is_admin') %}
                         <a href="{{ url_for('pin_post', post_id=post.id) }}" class="pin-toggle-btn" onclick="event.stopPropagation()" title="{{ '取消置顶' if post.is_pinned else '置顶' }}" style="margin-left:auto;">
-                            {{ '📌' if post.is_pinned else '📍' }}
+                            {% if post.is_pinned %}<svg width="14" height="14" viewBox="0 0 24 24" fill="#7c3aed" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5l-4 4L7 10l-1.5 1.5 7 7L14 17l1.5-4 4-4"/><line x1="9" y1="15" x2="4.5" y2="19.5"/><line x1="14.5" y1="4" x2="20" y2="9.5"/></svg>{% else %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5l-4 4L7 10l-1.5 1.5 7 7L14 17l1.5-4 4-4"/><line x1="9" y1="15" x2="4.5" y2="19.5"/><line x1="14.5" y1="4" x2="20" y2="9.5"/></svg>{% endif %}
                         </a>
                         {% endif %}
                     </div>
                     <div class="post-card-title">
-                        {% if post.is_pinned %}<span class="pin-badge">📌 置顶</span>{% endif %}
+                        {% if post.is_pinned %}<span class="pin-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="#7c3aed" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5l-4 4L7 10l-1.5 1.5 7 7L14 17l1.5-4 4-4"/><line x1="9" y1="15" x2="4.5" y2="19.5"/><line x1="14.5" y1="4" x2="20" y2="9.5"/></svg> 置顶</span>{% endif %}
                         {{ post.title }}</div>
                     <div class="post-card-summary">{{ post.content_plain }}</div>
                     <div class="post-card-footer">
-                        <span>❤️ {{ post.like_count }}</span>
-                        <span>💬 {{ post.comment_count }}</span>
-                        <span>⭐ {{ post.favorite_count }}</span>
-                        <span>👁 {{ post.views }}</span>
+                        <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> {{ post.like_count }}</span>
+                        <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> {{ post.comment_count }}</span>
+                        <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> {{ post.favorite_count }}</span>
+                        <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> {{ post.views }}</span>
                         <span class="post-card-category">
                             {% if post.category == 'daily' %}日常生活
                             {% elif post.category == 'news' %}时事新闻

@@ -6,7 +6,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: #f5f5f5;
+    background: #f6f6f6;
     color: #333;
     min-height: 100vh;
 }
@@ -14,6 +14,12 @@ body {
 a {
     text-decoration: none;
     color: inherit;
+}
+
+.icon-s {
+    display: inline-block;
+    vertical-align: -2px;
+    flex-shrink: 0;
 }
 
 /* 顶部导航栏 */
@@ -24,19 +30,36 @@ a {
     right: 0;
     height: 56px;
     background: #fff;
-    border-bottom: 1px solid #e8e8e8;
+    border-bottom: 2px solid #8b5cf6;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 32px;
     z-index: 100;
+    box-shadow: 0 1px 8px rgba(139, 92, 246, 0.06);
 }
 
 .navbar-brand {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     color: #1a1a1a;
     letter-spacing: -0.5px;
+}
+
+.navbar-logo {
+    width: 28px;
+    height: 28px;
+    vertical-align: -6px;
+    margin-right: 6px;
+    border-radius: 6px;
+}
+
+.auth-logo {
+    width: 36px;
+    height: 36px;
+    vertical-align: -9px;
+    margin-right: 8px;
+    border-radius: 8px;
 }
 
 .brand-fancy {
@@ -56,17 +79,17 @@ a {
 }
 
 .navbar-right a {
-    color: #666;
+    color: #1a1a1a;
     font-size: 14px;
     transition: color 0.2s;
 }
 
 .navbar-right a:hover {
-    color: #1a1a1a;
+    color: #5b21b6;
 }
 
 .navbar-user {
-    color: #999;
+    color: #333;
     font-size: 13px;
 }
 
@@ -77,15 +100,29 @@ a {
     object-fit: cover;
 }
 
-.bell-icon {
+.navbar-right .bell-icon {
     position: relative;
     font-size: 18px;
     color: #666;
     display: flex;
     align-items: center;
+    transition: color 0.2s;
 }
 
-.bell-icon:hover { color: #333; }
+.navbar-right .bell-icon:hover {
+    color: #ea580c;
+    animation: bell-shake 0.5s ease-in-out;
+}
+
+@keyframes bell-shake {
+    0%, 100% { transform: rotate(0deg); }
+    15% { transform: rotate(12deg); }
+    30% { transform: rotate(-10deg); }
+    45% { transform: rotate(8deg); }
+    60% { transform: rotate(-6deg); }
+    75% { transform: rotate(3deg); }
+    90% { transform: rotate(-1deg); }
+}
 
 .bell-badge {
     position: absolute;
@@ -202,6 +239,7 @@ a {
     background: #fff;
     border-radius: 8px;
     padding: 8px 0;
+    border: 1px solid #e8e8e8;
 }
 
 .sidebar-menu a {
@@ -247,6 +285,7 @@ a {
     background: #fff;
     border-radius: 8px;
     padding: 20px;
+    border: 1px solid #e8e8e8;
 }
 
 .sidebar-card h3 {
@@ -317,11 +356,14 @@ a {
     padding: 20px 24px;
     margin-bottom: 10px;
     cursor: pointer;
-    transition: box-shadow 0.2s;
+    border: 1px solid transparent;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .post-card:hover {
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border-color: #c4b5fd;
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.1);
 }
 
 .post-card-header {
@@ -378,7 +420,7 @@ a {
 
 .post-card-summary {
     font-size: 14px;
-    color: #777;
+    color: #646464;
     line-height: 1.7;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -403,7 +445,8 @@ a {
 
 .post-card-category {
     margin-left: auto;
-    background: #f5f5f5;
+    background: #ede9fe;
+    color: #7c3aed;
     padding: 2px 10px;
     border-radius: 4px;
     font-size: 12px;
@@ -411,23 +454,28 @@ a {
 }
 
 .pin-badge {
-    background: #fff3cd;
-    color: #856404;
+    background: #ede9fe;
+    color: #7c3aed;
     padding: 1px 8px;
     border-radius: 4px;
     font-size: 12px;
     font-weight: 500;
     margin-right: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
 }
 
 .pin-toggle-btn {
     font-size: 14px;
-    opacity: 0.5;
-    transition: opacity 0.15s;
+    color: #aaa;
+    transition: color 0.15s;
+    display: inline-flex;
+    align-items: center;
 }
 
 .pin-toggle-btn:hover {
-    opacity: 1;
+    color: #7c3aed;
 }
 
 /* 按钮 */
@@ -451,6 +499,26 @@ a {
 
 .btn-primary:hover {
     background: #333;
+}
+
+.btn-create-post {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+}
+
+.btn-create-post:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+    background: #8b5cf6;
+}
+
+.btn-create-post:active {
+    transform: scale(0.96);
+    box-shadow: 0 1px 4px rgba(139, 92, 246, 0.2);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .btn-outline {
@@ -478,28 +546,57 @@ a {
     background: #c0392b;
 }
 
-/* 消息提示 */
-.flash-msg {
-    padding: 12px 20px;
-    border-radius: 6px;
-    margin-bottom: 16px;
+.toast-container {
+    position: fixed;
+    top: 66px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    padding: 12px 24px;
+    border-radius: 8px;
     font-size: 14px;
-    text-align: center;
+    font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.35s ease;
+    pointer-events: auto;
+    max-width: 360px;
+    word-break: break-word;
 }
 
-.flash-success {
-    background: #eafaf1;
-    color: #27ae60;
+.toast-in {
+    transform: translateX(0);
+    opacity: 1;
 }
 
-.flash-error {
-    background: #fdedec;
-    color: #e74c3c;
+.toast-out {
+    transform: translateX(120%);
+    opacity: 0;
 }
 
-.flash-info {
-    background: #ebf5fb;
-    color: #2980b9;
+.toast-success {
+    background: #f3f0ff;
+    color: #7c3aed;
+    border-left: 4px solid #7c3aed;
+}
+
+.toast-error {
+    background: #fef2f2;
+    color: #dc2626;
+    border-left: 4px solid #dc2626;
+}
+
+.toast-info {
+    background: #ede9fe;
+    color: #8b5cf6;
+    border-left: 4px solid #8b5cf6;
 }
 
 /* 登录/注册页面 */
@@ -508,7 +605,7 @@ a {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background: #f5f5f5;
+    background: #f6f6f6;
 }
 
 .auth-box {
@@ -952,6 +1049,25 @@ a {
 
 .comment-form textarea:focus {
     border-color: #999;
+}
+
+.comment-form-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-comment-submit {
+    background: #1a1a1a;
+    color: #fff;
+    width: auto;
+    padding: 8px 28px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn-comment-submit:hover {
+    background: #333;
 }
 
 .comment-item {
@@ -1559,50 +1675,44 @@ a {
 .navbar-search {
     display: flex;
     align-items: center;
-    gap: 0;
-    flex: 1;
-    max-width: 400px;
+    gap: 8px;
+    flex: 0 1 280px;
     margin: 0 20px;
+    padding: 7px 16px;
+    border: 1px solid #ccc;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.navbar-search:focus-within {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+}
+
+.search-icon {
+    flex-shrink: 0;
+    color: #888;
+    transition: color 0.2s ease;
+}
+
+.navbar-search:focus-within .search-icon {
+    color: #8b5cf6;
 }
 
 .navbar-search input {
     flex: 1;
-    padding: 6px 12px;
-    border: 1px solid #e0e0e0;
-    border-right: none;
-    border-radius: 6px 0 0 6px;
+    border: none;
+    background: transparent;
     font-size: 13px;
     outline: none;
+    color: #333;
+    min-width: 0;
 }
 
-.navbar-search input:focus {
-    border-color: #999;
-}
-
-.navbar-search select {
-    padding: 6px 8px;
-    border: 1px solid #e0e0e0;
-    border-right: none;
-    font-size: 13px;
-    color: #666;
-    outline: none;
-    background: #fafafa;
-    cursor: pointer;
-}
-
-.navbar-search button {
-    padding: 6px 14px;
-    border: 1px solid #e0e0e0;
-    border-radius: 0 6px 6px 0;
-    background: #fafafa;
-    font-size: 13px;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.15s;
-}
-
-.navbar-search button:hover {
-    background: #eee;
+.navbar-search input::placeholder {
+    color: #999;
 }
 
 .search-header {

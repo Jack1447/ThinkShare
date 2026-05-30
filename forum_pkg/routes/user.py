@@ -159,7 +159,7 @@ def register_user_routes(app):
                 flash('昵称更新成功', 'success')
                 return redirect(url_for('profile'))
 
-            if 'show_posts' in request.form:
+            if form_type == 'privacy':
                 ps = get_privacy(user.id)
                 ps.show_posts = request.form.get('show_posts') == '1'
                 ps.show_favorites = request.form.get('show_favorites') == '1'

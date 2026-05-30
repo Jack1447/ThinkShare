@@ -18,7 +18,7 @@
             <div class="profile-info">
                 <div class="nickname-display">
                     <span id="nickname-text">{{ user.nickname }}</span>
-                    <span class="nickname-edit-icon" onclick="startEditNickname()" title="修改昵称">✏️</span>
+                    <span class="nickname-edit-icon" onclick="startEditNickname()" title="修改昵称"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
                 </div>
                 <form method="POST" id="nickname-form" class="nickname-edit-form" style="display:none;">
                     <input type="text" name="nickname" id="nickname-input" value="{{ user.nickname }}" required>
@@ -76,7 +76,7 @@
                         <img class="friend-avatar" src="{{ req.friend.avatar_url }}" alt="avatar">
                         <span class="friend-name">{{ req.friend.nickname }}</span>
                     </div>
-                    <span style="color:#999;font-size:12px;">⏳ 等待中</span>
+                    <span style="color:#999;font-size:12px;"><svg class="icon-s" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 等待中</span>
                 </div>
                 {% endfor %}
             </div>
@@ -102,9 +102,9 @@
                                 </div>
                                 <div class="post-card-title">{{ mp.title }}</div>
                                 <div class="post-card-footer">
-                                    <span>❤️ {{ mp.like_count }}</span>
-                                    <span>💬 {{ mp.comment_count }}</span>
-                                    <span>👁 {{ mp.views }}</span>
+                                    <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> {{ mp.like_count }}</span>
+                                    <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> {{ mp.comment_count }}</span>
+                                    <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> {{ mp.views }}</span>
                                     <span class="post-card-category">
                                         {% if mp.category == 'daily' %}日常生活
                                         {% elif mp.category == 'news' %}时事新闻
@@ -141,8 +141,8 @@
                                 </div>
                                 <div class="post-card-title">{{ fp.title }}</div>
                                 <div class="post-card-footer">
-                                    <span>❤️ {{ fp.like_count }}</span>
-                                    <span>💬 {{ fp.comment_count }}</span>
+                                    <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> {{ fp.like_count }}</span>
+                                    <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> {{ fp.comment_count }}</span>
                                 </div>
                             </div>
                         </a>
@@ -223,13 +223,14 @@
             {% elif current_tab == 'privacy' %}
                 <div class="privacy-section">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                        <h3 style="margin:0;">🔒 隐私设置</h3>
+                        <h3 style="margin:0;"><svg class="icon-s" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 隐私设置</h3>
                         <div style="display:flex;gap:8px;">
                             <button type="button" class="btn btn-sm btn-outline" onclick="toggleAllPrivacy()">全部开启/关闭</button>
                             <button type="submit" form="privacy-form" class="btn btn-sm btn-reply-submit">保存设置</button>
                         </div>
                     </div>
                     <form method="POST" id="privacy-form">
+                        <input type="hidden" name="form_type" value="privacy">
                         <div class="privacy-item">
                             <span>允许他人查看我的帖子</span>
                             <label class="toggle-switch">

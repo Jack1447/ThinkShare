@@ -18,18 +18,18 @@
                 </div>
                 <div class="user-actions">
                     {% if is_following %}
-                    <a href="{{ url_for('unfollow_user', user_id=target.id) }}" class="btn btn-sm btn-outline">✅ 已关注</a>
+                    <a href="{{ url_for('unfollow_user', user_id=target.id) }}" class="btn btn-sm btn-outline"><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 已关注</a>
                     {% else %}
-                    <a href="{{ url_for('follow_user', user_id=target.id) }}" class="btn btn-sm btn-outline">➕ 关注</a>
+                    <a href="{{ url_for('follow_user', user_id=target.id) }}" class="btn btn-sm btn-outline"><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg> 关注</a>
                     {% endif %}
                     {% if privacy.allow_short_chat %}
-                    <a href="{{ url_for('chat', peer_id=target.id) }}" class="btn btn-sm btn-reply-submit">💬 发消息</a>
+                    <a href="{{ url_for('chat', peer_id=target.id) }}" class="btn btn-sm btn-reply-submit"><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 发消息</a>
                     {% endif %}
                     {% if privacy.allow_friend_request and not is_friend %}
                         {% if friend_status == 'pending' %}
-                        <span class="btn btn-sm btn-outline" style="cursor:default;">⏳ 已发送好友请求</span>
+                        <span class="btn btn-sm btn-outline" style="cursor:default;"><svg class="icon-s" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 已发送好友请求</span>
                         {% else %}
-                        <a href="{{ url_for('add_friend', friend_id=target.id) }}" class="btn btn-sm btn-outline">➕ 添加好友</a>
+                        <a href="{{ url_for('add_friend', friend_id=target.id) }}" class="btn btn-sm btn-outline"><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg> 添加好友</a>
                         {% endif %}
                     {% endif %}
                 </div>
@@ -59,9 +59,9 @@
                                 </div>
                                 <div class="post-card-title">{{ mp.title }}</div>
                                 <div class="post-card-footer">
-                                    <span>❤️ {{ mp.like_count }}</span>
-                                    <span>💬 {{ mp.comment_count }}</span>
-                                    <span>👁 {{ mp.views }}</span>
+                                    <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> {{ mp.like_count }}</span>
+                                    <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> {{ mp.comment_count }}</span>
+                                    <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> {{ mp.views }}</span>
                                 </div>
                             </div>
                         </a>
@@ -85,8 +85,8 @@
                                 </div>
                                 <div class="post-card-title">{{ fp.title }}</div>
                                 <div class="post-card-footer">
-                                    <span>❤️ {{ fp.like_count }}</span>
-                                    <span>💬 {{ fp.comment_count }}</span>
+                                    <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> {{ fp.like_count }}</span>
+                                    <span><svg class="icon-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> {{ fp.comment_count }}</span>
                                 </div>
                             </div>
                         </a>
