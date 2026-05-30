@@ -20,7 +20,9 @@ def allowed_file(filename):
 
 def upload_to_cloudinary(file):
     import cloudinary.uploader
-    result = cloudinary.uploader.upload(file)
+    result = cloudinary.uploader.upload(file, transformation=[
+        {'width': 1200, 'crop': 'limit', 'quality': 'auto'}
+    ])
     return result['secure_url']
 
 

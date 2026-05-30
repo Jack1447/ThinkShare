@@ -754,6 +754,7 @@ a {
 /* Markdown 渲染内容 */
 .markdown-body {
     word-break: break-word;
+    line-height: 1.6;
 }
 
 .markdown-body > br {

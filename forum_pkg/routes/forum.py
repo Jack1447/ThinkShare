@@ -126,7 +126,7 @@ def register_forum_routes(app):
         user_liked = Like.query.filter_by(user_id=session['user_id'], post_id=post_id).first() is not None
         user_favorited = Favorite.query.filter_by(user_id=session['user_id'], post_id=post_id).first() is not None
 
-        post_content_html = md.markdown(post.content, extensions=['fenced_code', 'tables', 'nl2br'])
+        post_content_html = md.markdown(post.content, extensions=['fenced_code', 'tables'])
 
         root_comments = Comment.query.filter_by(post_id=post_id, parent_id=None).options(
             joinedload(Comment.author),

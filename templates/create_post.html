@@ -45,6 +45,7 @@
 </div>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 <style>
 .editor-container{opacity:0;transition:opacity .2s}.editor-ready{opacity:1}
 </style>
@@ -54,11 +55,9 @@ var simplemde = new SimpleMDE({
     element: document.getElementById("content"),
     spellChecker: false,
     placeholder: "分享你的想法...",
-    toolbar: ["bold","italic","heading","|","quote","unordered-list","ordered-list","|","link","image","|","preview","side-by-side","fullscreen","|","guide"],
-    uploadImage: true,
-    imageUploadFunction: function(file, onSuccess, onError) {
-        uploadImage(file, onSuccess, onError);
-    }
+    toolbar: ["bold","italic","heading","|","quote","unordered-list","ordered-list","|","link",
+        {name:"upload-image",action:function(e){var i=document.createElement("input");i.type="file";i.accept="image/*";i.onchange=function(){if(this.files&&this.files[0])handleImageFile(this.files[0])};i.click()},className:"fa fa-picture-o",title:"上传图片"},
+        "|","preview","side-by-side","fullscreen","|","guide"]
 });
 
 function uploadImage(file, onSuccess, onError) {
