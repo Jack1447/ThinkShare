@@ -737,6 +737,26 @@ a {
     opacity: 1 !important;
 }
 
+.cm-strong {
+    font-weight: 600 !important;
+    color: #1a1a1a;
+}
+
+.cm-em {
+    font-style: italic !important;
+    color: #444;
+}
+
+.cm-header {
+    font-weight: 600 !important;
+    color: #1a1a1a;
+}
+
+.editor-wrapper [class*="cm-formatting"] {
+    color: #bbb !important;
+    font-weight: normal !important;
+}
+
 .editor-toolbar a {
     color: #666 !important;
 }
