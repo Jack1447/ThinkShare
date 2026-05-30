@@ -71,7 +71,6 @@
             </div>
 
             <h1 class="post-detail-title">
-                {% if post.is_pinned %}<span class="pin-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="#7c3aed" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5l-4 4L7 10l-1.5 1.5 7 7L14 17l1.5-4 4-4"/><line x1="9" y1="15" x2="4.5" y2="19.5"/><line x1="14.5" y1="4" x2="20" y2="9.5"/></svg> 置顶</span>{% endif %}
                 {{ post.title }}</h1>
 
             <div class="post-detail-body markdown-body">{{ post_content_html | safe }}</div>

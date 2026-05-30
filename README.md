@@ -1,6 +1,5 @@
-<p align="center">
-  <img src="static/img/banner.svg" width="300" alt="ThinkShare">
-</p>
+<img src="static/img/logo.png" alt="logo" style="zoom:150%;" />
+
 
 基于 Flask + PostgreSQL 的全功能校园社区论坛，支持发帖、评论、实时聊天、好友系统、管理后台等。
 

@@ -150,8 +150,8 @@ def register_forum_routes(app):
 
         if not content:
             flash('评论内容不能为空', 'error')
-        elif len(content) > 1000:
-            flash('评论不能超过 1000 个字符', 'error')
+        elif len(content) > 200:
+            flash('评论不能超过 200 个字符', 'error')
         else:
             comment = Comment(
                 post_id=post_id,

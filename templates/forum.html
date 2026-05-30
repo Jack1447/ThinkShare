@@ -18,7 +18,7 @@
     <main class="main-content">
         {% if pagination.items %}
             {% for post in pagination.items %}
-            <div class="post-card" data-post-url="{{ url_for('post_detail', post_id=post.id) }}" onclick="location.href=this.getAttribute('data-post-url')">
+            <div class="post-card {{ 'pinned' if post.is_pinned else '' }}" data-post-url="{{ url_for('post_detail', post_id=post.id) }}" onclick="location.href=this.getAttribute('data-post-url')">
                 <div class="post-card-header">
                     <img class="post-card-avatar" src="{{ post.author.avatar_url }}" alt="avatar">
                     <a href="{{ url_for('user_profile', user_id=post.user_id) }}" class="post-card-author-link" onclick="event.stopPropagation()">{{ post.author.nickname }}</a>
@@ -30,7 +30,6 @@
                     {% endif %}
                 </div>
                 <div class="post-card-title">
-                    {% if post.is_pinned %}<span class="pin-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="#7c3aed" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5l-4 4L7 10l-1.5 1.5 7 7L14 17l1.5-4 4-4"/><line x1="9" y1="15" x2="4.5" y2="19.5"/><line x1="14.5" y1="4" x2="20" y2="9.5"/></svg> 置顶</span>{% endif %}
                     {{ post.title }}</div>
                 <div class="post-card-summary">{{ post.content_plain }}</div>
                 <div class="post-card-footer">
