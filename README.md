@@ -1,4 +1,6 @@
-# ThinkShare
+<p align="center">
+  <img src="static/img/favicon.svg" width="40" height="40" alt="ThinkShare Logo" style="vertical-align:-10px;margin-right:8px;border-radius:8px;"><strong style="font-size:32px;letter-spacing:-1px;color:#8B5CF6;">𝓣</strong><strong style="font-size:24px;">hink</strong><strong style="font-size:32px;color:#8B5CF6;">𝓢</strong><strong style="font-size:24px;">hare</strong>
+</p>
 
 基于 Flask + PostgreSQL 的全功能校园社区论坛，支持发帖、评论、实时聊天、好友系统、管理后台等。
 
