@@ -20,7 +20,9 @@
                 {% if messages %}
                     {% for msg in messages %}
                     <div class="chat-msg-row {{ 'sent' if msg.sender_id == session['user_id'] else 'received' }}">
-                        {% if msg.sender_id != session['user_id'] %}
+                        {% if msg.sender_id == session['user_id'] %}
+                        <img class="chat-msg-avatar" src="{{ session.get('avatar_url', url_for('static', filename='img/default_avatar.svg')) }}" alt="avatar">
+                        {% else %}
                         <img class="chat-msg-avatar" src="{{ msg.sender.avatar_url }}" alt="avatar">
                         {% endif %}
                         <div class="chat-msg-bubble {{ 'sent' if msg.sender_id == session['user_id'] else 'received' }}">
@@ -33,9 +35,6 @@
                                 </a>
                             {% endif %}
                         </div>
-                        {% if msg.sender_id == session['user_id'] %}
-                        <img class="chat-msg-avatar" src="{{ session.get('avatar_url', url_for('static', filename='img/default_avatar.svg')) }}" alt="avatar">
-                        {% endif %}
                     </div>
                     {% endfor %}
                 {% else %}
@@ -118,26 +117,16 @@
         row.className = 'chat-msg-row ' + (isMine ? 'sent' : 'received');
 
         var avatarSrc = isMine ? myAvatar : peerAvatar;
-        if (!isMine) {
-            var avatar = document.createElement('img');
-            avatar.className = 'chat-msg-avatar';
-            avatar.src = avatarSrc;
-            avatar.alt = 'avatar';
-            row.appendChild(avatar);
-        }
+        var avatar = document.createElement('img');
+        avatar.className = 'chat-msg-avatar';
+        avatar.src = avatarSrc;
+        avatar.alt = 'avatar';
+        row.appendChild(avatar);
 
         var bubble = document.createElement('div');
         bubble.className = 'chat-msg-bubble ' + (isMine ? 'sent' : 'received');
         bubble.innerHTML = '<div class="chat-text">' + escapeHtml(msg.content) + '</div>';
         row.appendChild(bubble);
-
-        if (isMine) {
-            var avatarR = document.createElement('img');
-            avatarR.className = 'chat-msg-avatar';
-            avatarR.src = avatarSrc;
-            avatarR.alt = 'avatar';
-            row.appendChild(avatarR);
-        }
 
         box.appendChild(row);
         box.scrollTop = box.scrollHeight;

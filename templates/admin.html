@@ -10,161 +10,206 @@
             <h2><svg class="icon-s" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 管理后台</h2>
         </div>
 
-        <div class="admin-stats">
-            <div class="admin-stat-card">
-                <span class="admin-stat-num">{{ stats.total_users }}</span>
-                <span class="admin-stat-label">用户总数</span>
-            </div>
-            <div class="admin-stat-card">
-                <span class="admin-stat-num">{{ stats.total_posts }}</span>
-                <span class="admin-stat-label">帖子总数</span>
-            </div>
-            <div class="admin-stat-card">
-                <span class="admin-stat-num">{{ stats.total_comments }}</span>
-                <span class="admin-stat-label">评论总数</span>
-            </div>
-            <div class="admin-stat-card">
-                <span class="admin-stat-num" style="color:#e74c3c;">{{ stats.banned_users }}</span>
-                <span class="admin-stat-label">已封禁</span>
-            </div>
-            <div class="admin-stat-card">
-                <span class="admin-stat-num"{% if stats.pending_reports > 0 %} style="color:#e74c3c;"{% endif %}>{{ stats.pending_reports }}</span>
-                <span class="admin-stat-label">待处理举报</span>
-            </div>
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="stats">
+                <svg class="icon-s" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                统计概览
+            </button>
+            <button class="admin-tab" data-tab="reports">
+                <svg class="icon-s" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                举报管理
+                {% if stats.pending_reports > 0 %}<span class="admin-tab-badge">{{ stats.pending_reports }}</span>{% endif %}
+            </button>
+            <button class="admin-tab" data-tab="posts">
+                <svg class="icon-s" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                帖子管理
+            </button>
+            <button class="admin-tab" data-tab="users">
+                <svg class="icon-s" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                用户管理
+            </button>
         </div>
 
-        {% if reports %}
-        <div class="profile-section">
-            <h3 style="padding:0 0 12px;">举报管理</h3>
-
-            <table class="admin-table" style="margin-bottom:20px;">
-                <thead>
-                    <tr>
-                        <th>举报人</th>
-                        <th>类型</th>
-                        <th>目标</th>
-                        <th>原因</th>
-                        <th>状态</th>
-                        <th>时间</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for r in reports %}
-                    <tr>
-                        <td>{{ r.reporter.nickname }}</td>
-                        <td>{{ '帖子' if r.target_type == 'post' else '评论' }}</td>
-                        <td>
-                            {% if r.target_type == 'post' %}
-                            <a href="{{ url_for('post_detail', post_id=r.target_id) }}" style="color:#1a1a1a;">查看帖子</a>
-                            {% else %}
-                            <a href="{{ url_for('post_detail', post_id=r.target_id) }}" style="color:#1a1a1a;">查看评论</a>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if r.reason == 'spam' %}违规内容
-                            {% elif r.reason == 'abuse' %}人身攻击
-                            {% elif r.reason == 'ad' %}广告骚扰
-                            {% else %}其他
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if r.status == 'pending' %}
-                            <span style="color:#e67e22;">待处理</span>
-                            {% elif r.status == 'resolved' %}
-                            <span style="color:#27ae60;">已处理</span>
-                            {% else %}
-                            <span style="color:#999;">已忽略</span>
-                            {% endif %}
-                        </td>
-                        <td style="color:#aaa;font-size:12px;">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                        <td>
-                            {% if r.status == 'pending' %}
-                            <a href="{{ url_for('admin_resolve_report', report_id=r.id) }}" class="btn btn-sm" style="background:#e74c3c;color:#fff;border:none;" onclick="return confirm('确定处理此举报并删除相关内容吗？')">处理</a>
-                            <a href="{{ url_for('admin_dismiss_report', report_id=r.id) }}" class="btn btn-sm btn-outline">忽略</a>
-                            {% else %}
-                            <span style="font-size:12px;color:#999;">已办</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% endif %}
-
-        <div class="profile-section">
-            <h3 style="padding:0 0 12px;"><svg class="icon-s" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 帖子管理 ({{ posts|length }})</h3>
-
-            <table class="admin-table" style="margin-bottom:20px;">
-                <thead>
-                    <tr>
-                        <th>标题</th>
-                        <th>作者</th>
-                        <th>板块</th>
-                        <th>时间</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in posts %}
-                    <tr>
-                        <td>
-                            {% if p.is_pinned %}<svg width="14" height="14" viewBox="0 0 24 24" fill="#7c3aed" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5l-4 4L7 10l-1.5 1.5 7 7L14 17l1.5-4 4-4"/><line x1="9" y1="15" x2="4.5" y2="19.5"/><line x1="14.5" y1="4" x2="20" y2="9.5"/></svg> {% endif %}
-                            <a href="{{ url_for('post_detail', post_id=p.id) }}" style="color:#1a1a1a;">
-                                {{ p.title[:40] }}{% if p.title|length > 40 %}...{% endif %}
-                            </a>
-                        </td>
-                        <td>{{ p.author.nickname }}</td>
-                        <td>
-                            {% if p.category == 'daily' %}日常生活
-                            {% elif p.category == 'news' %}时事新闻
-                            {% elif p.category == 'academic' %}学术科研
-                            {% elif p.category == 'trade' %}二手交易
-                            {% endif %}
-                        </td>
-                        <td style="color:#aaa;font-size:12px;">{{ p.created_at.strftime('%Y-%m-%d') }}</td>
-                        <td>
-                            <a href="{{ url_for('post_detail', post_id=p.id) }}" class="btn btn-sm btn-outline">查看</a>
-                            <a href="{{ url_for('admin_delete_post', post_id=p.id) }}" class="btn btn-sm" style="background:#e74c3c;color:#fff;border:none;" onclick="return confirm('确定要删除帖子「{{ p.title[:20] }}」吗？所有评论也会被删除。')">删除</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <div class="profile-section">
-            <h3 style="padding:0 0 12px;"><svg class="icon-s" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 用户列表</h3>
-
-            {% for u in users %}
-            <div class="friend-item">
-                <div class="friend-info">
-                    <img class="friend-avatar" src="{{ u.avatar_url }}" alt="avatar">
-                    <span class="friend-name">{{ u.nickname }}</span>
-                    <span style="color:#999;font-size:12px;">@{{ u.username }}</span>
-                    {% if u.is_admin %}
-                    <span class="admin-badge">管理员</span>
-                    {% endif %}
-                    {% if u.is_banned %}
-                    <span class="banned-badge">已封禁</span>
-                    {% endif %}
+        <div class="admin-tab-content active" id="tab-stats">
+            <div class="admin-stats">
+                <div class="admin-stat-card">
+                    <span class="admin-stat-num">{{ stats.total_users }}</span>
+                    <span class="admin-stat-label">用户总数</span>
                 </div>
-                <span style="color:#bbb;font-size:12px;">{{ u.created_at.strftime('%Y-%m-%d') }} 注册</span>
-                <div style="display:flex;gap:6px;">
-                    <a href="{{ url_for('user_profile', user_id=u.id) }}" class="btn btn-sm btn-outline">查看</a>
-                    {% if not u.is_admin and u.id != session['user_id'] %}
-                        {% if u.is_banned %}
-                        <a href="{{ url_for('admin_unban', user_id=u.id) }}" class="btn btn-sm btn-reply-submit" onclick="return confirm('确定要解封用户 {{ u.nickname }} 吗？')">解封</a>
-                        {% else %}
-                        <a href="{{ url_for('admin_ban', user_id=u.id) }}" class="btn btn-sm" style="background:#e74c3c;color:#fff;border:none;" onclick="return confirm('确定要封禁用户 {{ u.nickname }} 吗？')">封禁</a>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-num">{{ stats.total_posts }}</span>
+                    <span class="admin-stat-label">帖子总数</span>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-num">{{ stats.total_comments }}</span>
+                    <span class="admin-stat-label">评论总数</span>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-num" style="color:#e74c3c;">{{ stats.banned_users }}</span>
+                    <span class="admin-stat-label">已封禁</span>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-num"{% if stats.pending_reports > 0 %} style="color:#e74c3c;"{% endif %}>{{ stats.pending_reports }}</span>
+                    <span class="admin-stat-label">待处理举报</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-tab-content" id="tab-reports">
+            {% if reports %}
+            <div class="profile-section">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>举报人</th>
+                            <th>类型</th>
+                            <th>目标</th>
+                            <th>原因</th>
+                            <th>状态</th>
+                            <th>时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in reports %}
+                        <tr>
+                            <td>{{ r.reporter.nickname }}</td>
+                            <td>{{ '帖子' if r.target_type == 'post' else '评论' }}</td>
+                            <td>
+                                {% if r.target_type == 'post' %}
+                                <a href="{{ url_for('post_detail', post_id=r.target_id) }}" style="color:#1a1a1a;">查看帖子</a>
+                                {% else %}
+                                <a href="{{ url_for('post_detail', post_id=r.target_id) }}" style="color:#1a1a1a;">查看评论</a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if r.reason == 'spam' %}违规内容
+                                {% elif r.reason == 'abuse' %}人身攻击
+                                {% elif r.reason == 'ad' %}广告骚扰
+                                {% else %}其他
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if r.status == 'pending' %}
+                                <span style="color:#e67e22;">待处理</span>
+                                {% elif r.status == 'resolved' %}
+                                <span style="color:#27ae60;">已处理</span>
+                                {% else %}
+                                <span style="color:#999;">已忽略</span>
+                                {% endif %}
+                            </td>
+                            <td style="color:#aaa;font-size:12px;">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if r.status == 'pending' %}
+                                <a href="{{ url_for('admin_resolve_report', report_id=r.id) }}" class="btn btn-sm" style="background:#e74c3c;color:#fff;border:none;" onclick="return confirm('确定处理此举报并删除相关内容吗？')">处理</a>
+                                <a href="{{ url_for('admin_dismiss_report', report_id=r.id) }}" class="btn btn-sm btn-outline">忽略</a>
+                                {% else %}
+                                <span style="font-size:12px;color:#999;">已办</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="profile-section">
+                <div class="empty-state" style="background:#fff;">暂无举报</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="admin-tab-content" id="tab-posts">
+            <div class="profile-section">
+                <table class="admin-table" style="margin-bottom:20px;">
+                    <thead>
+                        <tr>
+                            <th>标题</th>
+                            <th>作者</th>
+                            <th>板块</th>
+                            <th>时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in posts %}
+                        <tr>
+                            <td>
+                                {% if p.is_pinned %}<svg width="14" height="14" viewBox="0 0 24 24" fill="#7c3aed" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5l-4 4L7 10l-1.5 1.5 7 7L14 17l1.5-4 4-4"/><line x1="9" y1="15" x2="4.5" y2="19.5"/><line x1="14.5" y1="4" x2="20" y2="9.5"/></svg> {% endif %}
+                                <a href="{{ url_for('post_detail', post_id=p.id) }}" style="color:#1a1a1a;">
+                                    {{ p.title[:40] }}{% if p.title|length > 40 %}...{% endif %}
+                                </a>
+                            </td>
+                            <td>{{ p.author.nickname }}</td>
+                            <td>
+                                {% if p.category == 'daily' %}日常生活
+                                {% elif p.category == 'news' %}时事新闻
+                                {% elif p.category == 'academic' %}学术科研
+                                {% elif p.category == 'trade' %}二手交易
+                                {% endif %}
+                            </td>
+                            <td style="color:#aaa;font-size:12px;">{{ p.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <a href="{{ url_for('post_detail', post_id=p.id) }}" class="btn btn-sm btn-outline">查看</a>
+                                <a href="{{ url_for('admin_delete_post', post_id=p.id) }}" class="btn btn-sm" style="background:#e74c3c;color:#fff;border:none;" onclick="return confirm('确定要删除帖子「{{ p.title[:20] }}」吗？所有评论也会被删除。')">删除</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="admin-tab-content" id="tab-users">
+            <div class="profile-section">
+                {% for u in users %}
+                <div class="friend-item">
+                    <div class="friend-info">
+                        <img class="friend-avatar" src="{{ u.avatar_url }}" alt="avatar">
+                        <span class="friend-name">{{ u.nickname }}</span>
+                        <span style="color:#999;font-size:12px;">@{{ u.username }}</span>
+                        {% if u.is_admin %}
+                        <span class="admin-badge">管理员</span>
                         {% endif %}
-                    {% endif %}
+                        {% if u.is_banned %}
+                        <span class="banned-badge">已封禁</span>
+                        {% endif %}
+                    </div>
+                    <span style="color:#bbb;font-size:12px;">{{ u.created_at.strftime('%Y-%m-%d') }} 注册</span>
+                    <div style="display:flex;gap:6px;">
+                        <a href="{{ url_for('user_profile', user_id=u.id) }}" class="btn btn-sm btn-outline">查看</a>
+                        {% if not u.is_admin and u.id != session['user_id'] %}
+                            {% if u.is_banned %}
+                            <a href="{{ url_for('admin_unban', user_id=u.id) }}" class="btn btn-sm btn-reply-submit" onclick="return confirm('确定要解封用户 {{ u.nickname }} 吗？')">解封</a>
+                            {% else %}
+                            <a href="{{ url_for('admin_ban', user_id=u.id) }}" class="btn btn-sm" style="background:#e74c3c;color:#fff;border:none;" onclick="return confirm('确定要封禁用户 {{ u.nickname }} 吗？')">封禁</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
 
     </div>
 </div>
+
+<script>
+(function() {
+    var tabs = document.querySelectorAll('.admin-tab');
+    var contents = document.querySelectorAll('.admin-tab-content');
+
+    tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            var target = this.getAttribute('data-tab');
+
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            contents.forEach(function(c) { c.classList.remove('active'); });
+
+            this.classList.add('active');
+            document.getElementById('tab-' + target).classList.add('active');
+        });
+    });
+})();
+</script>
 {% endblock %}
