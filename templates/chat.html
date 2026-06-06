@@ -10,7 +10,11 @@
             <div class="chat-header">
                 <a href="javascript:history.back()" class="chat-back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></a>
                 <img class="chat-header-avatar" src="{{ peer.avatar_url }}" alt="avatar">
+                {% if chat_type == 'long' %}
+                <a href="{{ url_for('user_profile', user_id=peer.id) }}" class="chat-header-name chat-header-name-link">{{ peer.nickname }}</a>
+                {% else %}
                 <span class="chat-header-name">{{ peer.nickname }}</span>
+                {% endif %}
                 {% if chat_type == 'short' %}
                 <span class="chat-limit-tag" id="chat-limit-tag">短时 <span id="chat-count">{{ total_count }}</span>/10</span>
                 {% endif %}
